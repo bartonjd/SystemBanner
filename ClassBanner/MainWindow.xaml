@@ -1,0 +1,21 @@
+﻿<Window x:Class="ClassBanner.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ClassBanner"
+        mc:Ignorable="d" WindowStyle="None" WindowState="Normal"  Background="#008000" VerticalAlignment="Top" Height="23" SizeToContent="Manual" ResizeMode="NoResize" ShowInTaskbar="False" Width="{x:Static SystemParameters.PrimaryScreenWidth}" Deactivated="Window_Deactivated" Top="0" Left="0" MouseEnter="Window_MouseEnter">
+    <Grid VerticalAlignment="Top">
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Name="colDisplay1" Width="*"/>
+            <ColumnDefinition x:Name="colClassification" Width="*"/>
+            <ColumnDefinition x:Name="colDisplay2" Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Label Content="CATEGORY" HorizontalAlignment="Center" Grid.Column="1" VerticalAlignment="Top" FontWeight="Bold"/>
+        <Label Content="jbarton" HorizontalAlignment="Left" Grid.Column="0" VerticalAlignment="Top" FontWeight="Bold"/>        
+        <Label Content="JOSHB-PC" HorizontalAlignment="Right" Grid.Column="2" VerticalAlignment="Top" FontWeight="Bold"/>
+    </Grid>
+
+</Window>
