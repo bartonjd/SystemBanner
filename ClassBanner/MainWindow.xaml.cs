@@ -15,6 +15,7 @@ using System.Windows.Navigation;
 using System.Windows.Threading;
 using System.Windows.Shapes;
 using WpfScreenHelper;
+using ClassBanner;
 
 namespace ClassBanner
 {
@@ -24,10 +25,34 @@ namespace ClassBanner
     //
     public partial class MainWindow : Window
     {
-        private bool FadedOut = false;
+        private DispatcherTimer showTimer;
+        private const int BANNER_HEIGHT = 23;
+        private int REGULAR_OPACITY = 100;
+        private Dictionary<string, string> ClassificationColors;
+        private Dictionary<string, string> ClassificationLabels;
+
+
         public MainWindow()
         {
             InitializeComponent();
+
+            showTimer = new DispatcherTimer();
+            showTimer.Interval = TimeSpan.FromSeconds(3);
+            showTimer.Tick += (s, _) => this.Window_Show();
+            ClassificationColors = new()
+            {
+                {"UNCATEGORIZED", "#008000"}
+            };
+
+            ClassificationLabels = new()
+            {
+                {"UNCATEGORIZED", "Uncategorized"}
+            };
+
+            bool checkRegPath = Utils.TestRegPath(@"HKEY_LOCAL_MACHINE\SOFTWARE\ClassBanner\");
+            Utils.GetHostName();
+
+
         }
 
         private void Window_Deactivated(object sender, EventArgs e)
@@ -35,40 +60,44 @@ namespace ClassBanner
             Window window = (Window)sender;
             window.Topmost = true;
 
+        }
 
-          /*  if (this.FadedOut) {
-                //this.Show();
-                var anim = new DoubleAnimation(100, (Duration)TimeSpan.FromSeconds(3), FillBehavior.Stop);
-                anim.Completed += (s, _) => this.Window_Show();
-                this.BeginAnimation(UIElement.OpacityProperty, anim);
-            }*/
-        }
-        private void Window_Hide() {
-            this.FadedOut = true;
-            this.Hide();
-            DispatcherTimer timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromSeconds(3);
-            timer.Tick += (s, _) => this.Show(); ;
-            timer.Start();
-        }
         private void Window_Show()
         {
-            DispatcherTimer timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromSeconds(3);
-            timer.Tick += (s,_) => this.Show(); ;
-            timer.Start();
-            this.FadedOut = false;
-            
+            if (Visibility == Visibility.Hidden)
+            {
+                Visibility = Visibility.Visible;
+                var anim = new DoubleAnimation(REGULAR_OPACITY, (Duration)TimeSpan.FromSeconds(.25), FillBehavior.Stop);
+                anim.Completed += (s, _) =>
+                {
+                    showTimer.Stop();
+                    this.BeginAnimation(Window.HeightProperty, null);
+                };
+                this.BeginAnimation(UIElement.OpacityProperty, anim);
+                var animShrink = new DoubleAnimation(BANNER_HEIGHT, (Duration)TimeSpan.FromSeconds(.25), FillBehavior.Stop);
+                this.BeginAnimation(Window.HeightProperty, animShrink);
+            }            
         }
         private void Window_MouseEnter(object sender, EventArgs e)
         {
-
-            var anim = new DoubleAnimation(0, (Duration)TimeSpan.FromSeconds(1), FillBehavior.Stop);
-            anim.Completed += (s, _) => this.Window_Hide();
+            //stop expanding
+            var anim = new DoubleAnimation(0, (Duration)TimeSpan.FromSeconds(.25), FillBehavior.Stop);
+            anim.Completed += (s, _) =>
+            {
+                this.Hide();
+            };
             this.BeginAnimation(UIElement.OpacityProperty, anim);
+            var animShrink = new DoubleAnimation(0, (Duration)TimeSpan.FromSeconds(.25), FillBehavior.Stop);
+
+            this.BeginAnimation(Window.HeightProperty, animShrink);
+
+            showTimer.Start();
         }
+        
+        private void Window_Activated(object sender, EventArgs e)
+        {
 
-
-
+            
+        }
     }
 }

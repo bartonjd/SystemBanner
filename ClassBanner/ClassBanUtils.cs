@@ -1,21 +1,26 @@
 ﻿using System;
 using Microsoft.Win32;
 using System.Data;
+using System.Linq;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-
 using System.Security.Principal;
-//using System.Diagnostics;
 
 namespace ClassBanner
 {
     public class Utils
     {
+        static public string GetCurrentUser() { 
+            return System.Security.Principal.WindowsIdentity.GetCurrent().Name.Split('\\').ToArray().Last();
+        }
 
+        static public string GetHostName() {
+            return Environment.MachineName;
+        }
 
         static public Dictionary<string, RegistryKey> GetRegHives()
         {

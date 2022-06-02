@@ -38,7 +38,7 @@ namespace ClassBanner
         {
             base.OnStartup(e);
             List<MainWindow> MainWindowList = new List<MainWindow>();
-           bool check =  Utils.TestRegPath(@"HKEY_LOCAL_MACHINE\SOFTWARE\ClassBanner\");
+
             bool ShowOnBottom = true;
             foreach (var ss in Screen.AllScreens)
                 {
