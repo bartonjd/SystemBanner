@@ -25,9 +25,9 @@
             <ColumnDefinition x:Name="colClassification" Width="*"/>
             <ColumnDefinition x:Name="colDisplay2" Width="*"/>
         </Grid.ColumnDefinitions>
-        <Label Content="jbarton" HorizontalAlignment="Left" Grid.Column="0" VerticalAlignment="Center" FontWeight="Bold" Margin="0,-2,0,0"/>
-        <Label Content="CATEGORY" HorizontalAlignment="Center" Grid.Column="1" VerticalAlignment="Center" FontWeight="Bold" Margin="0,-2,0,0"/>
-        <Label Content="JOSHB-PC" HorizontalAlignment="Right" Grid.Column="2" VerticalAlignment="Center" FontWeight="Bold" Margin="0,-2,0,0"/>
+        <Label x:Name="lblLeftDisplay" Content="" HorizontalAlignment="Left" Grid.Column="0" VerticalAlignment="Center" FontWeight="Bold" Margin="0,-2,0,0"/>
+        <Label x:Name="lblBannerLabel" Content="CATEGORY" HorizontalAlignment="Center" Grid.Column="1" VerticalAlignment="Center" FontWeight="Bold" Margin="0,-2,0,0"/>
+        <Label x:Name="lblRightDisplay" Content="" HorizontalAlignment="Right" Grid.Column="2" VerticalAlignment="Center" FontWeight="Bold" Margin="0,-2,0,0"/>
     </Grid>
 
 </Window>

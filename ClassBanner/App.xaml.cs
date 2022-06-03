@@ -23,7 +23,7 @@ namespace ClassBanner
             Rect r = s.WorkingArea;
             if (ShowOnBottom)
             {
-                mainWindow.Top = (r.Bottom / s.ScaleFactor) - mainWindow.Height;
+                mainWindow.Top = (r.Bottom / s.ScaleFactor) - mainWindow.Height - 1;
             }
             else
             {
@@ -38,8 +38,17 @@ namespace ClassBanner
         {
             base.OnStartup(e);
             List<MainWindow> MainWindowList = new List<MainWindow>();
-
-            bool ShowOnBottom = true;
+            bool ShowOnBottom = false;
+            //string ShowBottomBanner = Utils.GetRegValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\ClassBanner\", "ShowBottomBanner");
+            string ShowBottomBanner = "1";
+            if (ShowBottomBanner == "1")
+            {
+                ShowOnBottom = true;
+            }
+            else
+            {
+                ShowOnBottom = false;
+            }
             foreach (var ss in Screen.AllScreens)
                 {
                 this.CreateBannerWindowObj(ss);

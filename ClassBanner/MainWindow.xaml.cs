@@ -26,10 +26,17 @@ namespace ClassBanner
     public partial class MainWindow : Window
     {
         private DispatcherTimer showTimer;
-        private const int BANNER_HEIGHT = 23;
-        private int REGULAR_OPACITY = 100;
+        private const Int32 BANNER_HEIGHT = 23;
+        private Int32 REGULAR_OPACITY = 100;
         private Dictionary<string, string> ClassificationColors;
         private Dictionary<string, string> ClassificationLabels;
+        private String HostName;
+        private String CurrentUser;
+        private String BannerLabel;
+        private String BannerColor;
+        private String LeftDisplay;
+        private String RightDisplay;
+        private bool ShowOnBottom;
 
 
         public MainWindow()
@@ -50,11 +57,47 @@ namespace ClassBanner
             };
 
             bool checkRegPath = Utils.TestRegPath(@"HKEY_LOCAL_MACHINE\SOFTWARE\ClassBanner\");
-            Utils.GetHostName();
+            if (checkRegPath)
+            {
+                string LeftDisplayFormat = Utils.GetRegValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\ClassBanner\", "LeftDisplay");
+                string RightDisplayFormat = Utils.GetRegValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\ClassBanner\", "RightDisplay");
+                BannerLabel = Utils.GetRegValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\ClassBanner\", "BannerLabel");
+                //Function still doesn't work with bools
+                //bool HideOnBannerMouseOver = bool.Parse(Utils.GetRegValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\ClassBanner\", "HideOnMouseOver"));
+                Int32 BannerOpacityLvl = Int32.Parse(Utils.GetRegValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\ClassBanner\", "BannerOpacity"));
+                REGULAR_OPACITY = BannerOpacityLvl;
+                HostName = Utils.GetHostName();
+                CurrentUser = Utils.GetCurrentUser();
+
+                switch (LeftDisplayFormat)
+                {
+                    case "@HOST":
+                        LeftDisplay = HostName;
+                        break;
+                    case "@USER":
+                        LeftDisplay = CurrentUser;
+                        break;
+                    default:
+                        break;
+                }
+                switch (RightDisplayFormat)
+                {
+                    case "@HOST":
+                        RightDisplay = HostName;
+                        break;
+                    case "@USER":
+                        RightDisplay = CurrentUser;
+                        break;
+                    default:
+                        break;
+                }
+                lblLeftDisplay.Content = LeftDisplay;
+                lblRightDisplay.Content = RightDisplay;
+                lblBannerLabel.Content = BannerLabel;
 
 
+            }
         }
-
         private void Window_Deactivated(object sender, EventArgs e)
         {
             Window window = (Window)sender;
