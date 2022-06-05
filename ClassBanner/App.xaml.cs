@@ -18,12 +18,12 @@ namespace ClassBanner
     /// </summary>
     public partial class App : Application
     {
-        private void CreateBannerWindowObj(Screen s,bool ShowOnBottom = false) {
-            var mainWindow = new MainWindow();
+        private void CreateBannerWindowObj(Screen s, bool ShowOnBottom = false) {
+            var mainWindow = new MainWindow(ShowOnBottom);
             Rect r = s.WorkingArea;
             if (ShowOnBottom)
             {
-                mainWindow.Top = (r.Bottom / s.ScaleFactor) - mainWindow.Height - 1;
+                mainWindow.Top = (r.Bottom / s.ScaleFactor) - mainWindow.Height;
             }
             else
             {
@@ -31,6 +31,7 @@ namespace ClassBanner
             }
             mainWindow.Left = r.Left / s.ScaleFactor;
             mainWindow.Width = r.Width / s.ScaleFactor;
+            mainWindow.Bounds = new Rect(mainWindow.Left, mainWindow.Top, mainWindow.Width, mainWindow.Height);
 
             mainWindow.Show();
         }

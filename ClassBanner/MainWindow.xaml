@@ -12,12 +12,13 @@
         SizeToContent="Manual"
         ResizeMode="NoResize"
         ShowInTaskbar="False"
+        IsTabStop="False"
         Width="{x:Static SystemParameters.PrimaryScreenWidth}"
         Deactivated="Window_Deactivated"
         Top="0"
         Left="0"
         MouseEnter="Window_MouseEnter"
-        Activated="Window_Activated">
+        Activated="Window_Activated" Loaded="Window_Loaded">
     <Grid VerticalAlignment="Top">
 
         <Grid.ColumnDefinitions>

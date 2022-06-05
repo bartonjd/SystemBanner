@@ -1,21 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Threading;
-using System.Windows.Shapes;
-using WpfScreenHelper;
-using ClassBanner;
+using System.Text.Json;
+using System.Runtime.InteropServices;
 
 namespace ClassBanner
 {
@@ -25,6 +14,7 @@ namespace ClassBanner
     //
     public partial class MainWindow : Window
     {
+        private bool isBottom;
         private DispatcherTimer showTimer;
         private const Int32 BANNER_HEIGHT = 23;
         private Int32 REGULAR_OPACITY = 100;
@@ -36,13 +26,12 @@ namespace ClassBanner
         private String BannerColor;
         private String LeftDisplay;
         private String RightDisplay;
-        private bool ShowOnBottom;
+        internal Rect Bounds;
 
-
-        public MainWindow()
+        public MainWindow(bool isBottom=false)
         {
             InitializeComponent();
-
+            this.isBottom = isBottom;
             showTimer = new DispatcherTimer();
             showTimer.Interval = TimeSpan.FromSeconds(3);
             showTimer.Tick += (s, _) => this.Window_Show();
@@ -66,6 +55,7 @@ namespace ClassBanner
                 //bool HideOnBannerMouseOver = bool.Parse(Utils.GetRegValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\ClassBanner\", "HideOnMouseOver"));
                 Int32 BannerOpacityLvl = Int32.Parse(Utils.GetRegValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\ClassBanner\", "BannerOpacity"));
                 REGULAR_OPACITY = BannerOpacityLvl;
+                Opacity = REGULAR_OPACITY / 100.0;
                 HostName = Utils.GetHostName();
                 CurrentUser = Utils.GetCurrentUser();
 
@@ -98,6 +88,7 @@ namespace ClassBanner
 
             }
         }
+
         private void Window_Deactivated(object sender, EventArgs e)
         {
             Window window = (Window)sender;
@@ -107,40 +98,48 @@ namespace ClassBanner
 
         private void Window_Show()
         {
+
             if (Visibility == Visibility.Hidden)
             {
+                Point mousePos = GetCursorPosition();
+                if (!isBottom) {
+                    if (mousePos.Y <= this.Bounds.Bottom)
+                    {
+                        return;
+                    }
+                } else {
+                    if (mousePos.Y >= this.Bounds.Top)
+                    {
+                        return;
+                    }
+                }
                 Visibility = Visibility.Visible;
-                var anim = new DoubleAnimation(REGULAR_OPACITY, (Duration)TimeSpan.FromSeconds(.25), FillBehavior.Stop);
+                var anim = new DoubleAnimation(0, REGULAR_OPACITY,(Duration)TimeSpan.FromSeconds(.25), FillBehavior.Stop);
                 anim.Completed += (s, _) =>
                 {
                     showTimer.Stop();
                     this.BeginAnimation(Window.HeightProperty, null);
                 };
                 this.BeginAnimation(UIElement.OpacityProperty, anim);
-                var animShrink = new DoubleAnimation(BANNER_HEIGHT, (Duration)TimeSpan.FromSeconds(.25), FillBehavior.Stop);
-                this.BeginAnimation(Window.HeightProperty, animShrink);
-            }            
+            }
         }
         private void Window_MouseEnter(object sender, EventArgs e)
         {
             //stop expanding
-            var anim = new DoubleAnimation(0, (Duration)TimeSpan.FromSeconds(.25), FillBehavior.Stop);
+            var anim = new DoubleAnimation(REGULAR_OPACITY,0, (Duration)TimeSpan.FromSeconds(.25), FillBehavior.Stop);
             anim.Completed += (s, _) =>
             {
                 this.Hide();
             };
             this.BeginAnimation(UIElement.OpacityProperty, anim);
-            var animShrink = new DoubleAnimation(0, (Duration)TimeSpan.FromSeconds(.25), FillBehavior.Stop);
-
-            this.BeginAnimation(Window.HeightProperty, animShrink);
-
             showTimer.Start();
         }
-        
+
         private void Window_Activated(object sender, EventArgs e)
         {
 
-            
+
         }
+
     }
 }
