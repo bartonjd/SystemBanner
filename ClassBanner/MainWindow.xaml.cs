@@ -5,6 +5,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using System.Text.Json;
 using System.Runtime.InteropServices;
+using System.Windows.Interop;
 
 namespace ClassBanner
 {
@@ -17,15 +18,16 @@ namespace ClassBanner
         private bool isBottom;
         private DispatcherTimer showTimer;
         private const Int32 BANNER_HEIGHT = 23;
-        private Int32 REGULAR_OPACITY = 100;
+        private Double REGULAR_OPACITY = 100;
         private Dictionary<string, string> ClassificationColors;
         private Dictionary<string, string> ClassificationLabels;
-        private String HostName;
-        private String CurrentUser;
-        private String BannerLabel;
-        private String BannerColor;
-        private String LeftDisplay;
-        private String RightDisplay;
+        private String HostName = "";
+        private String CurrentUser = "";
+        private String BannerLabel = "";
+        private String BannerColor = "#008000";
+        private String LeftDisplay = "";
+        private String RightDisplay = "";
+        public String DisplayIdentifier;
         internal Rect Bounds;
 
         public MainWindow(bool isBottom=false)
@@ -54,8 +56,8 @@ namespace ClassBanner
                 //Function still doesn't work with bools
                 //bool HideOnBannerMouseOver = bool.Parse(Utils.GetRegValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\ClassBanner\", "HideOnMouseOver"));
                 Int32 BannerOpacityLvl = Int32.Parse(Utils.GetRegValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\ClassBanner\", "BannerOpacity"));
-                REGULAR_OPACITY = BannerOpacityLvl;
-                Opacity = REGULAR_OPACITY / 100.0;
+                REGULAR_OPACITY = BannerOpacityLvl / 100.0;
+                Opacity = REGULAR_OPACITY;
                 HostName = Utils.GetHostName();
                 CurrentUser = Utils.GetCurrentUser();
 
@@ -114,7 +116,7 @@ namespace ClassBanner
                     }
                 }
                 Visibility = Visibility.Visible;
-                var anim = new DoubleAnimation(0, REGULAR_OPACITY,(Duration)TimeSpan.FromSeconds(.25), FillBehavior.Stop);
+                var anim = new DoubleAnimation(REGULAR_OPACITY,(Duration)TimeSpan.FromSeconds(.5), FillBehavior.Stop);
                 anim.Completed += (s, _) =>
                 {
                     showTimer.Stop();
@@ -126,7 +128,7 @@ namespace ClassBanner
         private void Window_MouseEnter(object sender, EventArgs e)
         {
             //stop expanding
-            var anim = new DoubleAnimation(REGULAR_OPACITY,0, (Duration)TimeSpan.FromSeconds(.25), FillBehavior.Stop);
+            var anim = new DoubleAnimation(REGULAR_OPACITY, (Duration)TimeSpan.FromSeconds(.5), FillBehavior.Stop);
             anim.Completed += (s, _) =>
             {
                 this.Hide();
@@ -140,6 +142,5 @@ namespace ClassBanner
 
 
         }
-
     }
 }
