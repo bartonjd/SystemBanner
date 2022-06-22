@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using System.Text.Json;
+using WpfScreenHelper;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
 
@@ -16,6 +17,7 @@ namespace ClassBanner
     public partial class MainWindow : Window
     {
         private bool isBottom;
+        public String BannerPosition;
         private DispatcherTimer showTimer;
         private const Int32 BANNER_HEIGHT = 23;
         private Double REGULAR_OPACITY = 100;
@@ -27,13 +29,16 @@ namespace ClassBanner
         private String BannerColor = "#008000";
         private String LeftDisplay = "";
         private String RightDisplay = "";
+        public Rect ScaledScreen;
+        public String DisplayDevice;
         public String DisplayIdentifier;
         internal Rect Bounds;
 
         public MainWindow(bool isBottom=false)
         {
             InitializeComponent();
-            this.isBottom = isBottom;
+            this.DataContext = this;
+            BannerPosition = (isBottom) ? "bottom" : "top";
             showTimer = new DispatcherTimer();
             showTimer.Interval = TimeSpan.FromSeconds(3);
             showTimer.Tick += (s, _) => this.Window_Show();

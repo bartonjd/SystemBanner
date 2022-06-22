@@ -2,11 +2,7 @@
 using System.Collections.Generic;
 using System.Windows;
 using WpfScreenHelper;
-using System.Windows.Threading;
-using System.Runtime.InteropServices;
-using System.Windows.Interop;
 using Microsoft.Win32;
-using System.Collections;
 
 namespace ClassBanner
 {
@@ -16,67 +12,15 @@ namespace ClassBanner
     public partial class App : Application
     {
         public Dictionary<String, MainWindow> MainWindowList = new Dictionary<String, MainWindow>();
-        private Rect GetScaledScreen(Screen s)
-        {
-            Rect r = s.WorkingArea;
-            Rect scaledScreen = new Rect(
-                    (r.Left / s.ScaleFactor),
-                    (r.Top / s.ScaleFactor),
-                    (r.Width / s.ScaleFactor),
-                    (r.Height / s.ScaleFactor)
-            );
-            return scaledScreen;
-        }
-        private void CreateBannerWindowObj(Screen s, bool ShowOnBottom = false)
-        {
-            var mainWindow = new MainWindow(ShowOnBottom);
-            Rect r = s.WorkingArea;
-            Rect scaledScreen = GetScaledScreen(s);
-            String bannerPosition;
+        public WindowManager WDM = new WindowManager();
 
-            if (ShowOnBottom)
-            {
-                mainWindow.Top = (scaledScreen.Bottom) - mainWindow.Height;
-                bannerPosition = "bot";
-            }
-            else
-            {
-                mainWindow.Top = scaledScreen.Top;
-                bannerPosition = "top";
-            }
-            mainWindow.Left = scaledScreen.Left;
-            mainWindow.Width = scaledScreen.Width;
-            mainWindow.Bounds = new Rect(mainWindow.Left, mainWindow.Top, mainWindow.Width, mainWindow.Height);
-            String displayId = scaledScreen.ToString() + s.DeviceName;
-            mainWindow.DisplayIdentifier = displayId;
-            MainWindowList.Add(displayId + "@" + bannerPosition, mainWindow);
-            mainWindow.Show();
-        }
         protected override void OnStartup(StartupEventArgs e)
         {
 
             base.OnStartup(e);
             SystemEvents.DisplaySettingsChanged += new EventHandler(SystemEvents_DisplaySettingsChanged);
+            WDM.Init();
 
-            bool ShowOnBottom = false;
-            //string ShowBottomBanner = Utils.GetRegValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\ClassBanner\", "ShowBottomBanner");
-            string ShowBottomBanner = "1";
-            if (ShowBottomBanner == "1")
-            {
-                ShowOnBottom = true;
-            }
-            else
-            {
-                ShowOnBottom = false;
-            }
-            foreach (var ss in Screen.AllScreens)
-            {
-                this.CreateBannerWindowObj(ss);
-                if (ShowOnBottom)
-                {
-                    this.CreateBannerWindowObj(ss, true);
-                }
-            }
         }
         void App_Exit(object sender, ExitEventArgs e)
         {
@@ -93,8 +37,10 @@ namespace ClassBanner
         //closing
         //
 
-        private void SystemEvents_DisplaySettingsChanged(Object sender,EventArgs e)
+        private void SystemEvents_DisplaySettingsChanged(object? sender,EventArgs e)
         {
+            WDM.Refresh();
+            /*
             List<String> screenBounds = new List<String>();
             foreach (var sb in Screen.AllScreens) 
             {
@@ -112,6 +58,7 @@ namespace ClassBanner
                 }
                 string bob = "l";
             }
+            */
+        }
     }
-}
 }
