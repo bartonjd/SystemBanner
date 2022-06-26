@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows;
 using WpfScreenHelper;
 using Microsoft.Win32;
+using System.Threading;
 
 namespace ClassBanner
 {
@@ -39,6 +40,7 @@ namespace ClassBanner
 
         private void SystemEvents_DisplaySettingsChanged(object? sender,EventArgs e)
         {
+            Thread.Sleep(5000);
             WDM.Refresh();
             /*
             List<String> screenBounds = new List<String>();

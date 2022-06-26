@@ -4,14 +4,13 @@ using System.Windows;
 using System.Collections.Generic;
 using WpfScreenHelper;
 using Microsoft.Win32;
-using ClassBanner;
 
 namespace ClassBanner
 {
     public class WindowManager
     {
         public Dictionary<String, MainWindow> MainWindowList = new Dictionary<String, MainWindow>();
-        
+        public bool ShowOnBottom = true;
         public Dictionary<String, Display> Displays = new Dictionary<String, Display>();
         public void Init()
         {
@@ -39,7 +38,7 @@ namespace ClassBanner
         }
         public void Add(String DisplayId, MainWindow mw)
         {
-            Display? DisplayInfo = null;
+            Display? DisplayInfo;
             if (Displays.ContainsKey(DisplayId))
             {
                 DisplayInfo = Displays[DisplayId];
@@ -66,30 +65,22 @@ namespace ClassBanner
                 Displays.Remove(DisplayId);
             }
         }
-
-        public void Refresh()
+        private void DisposeDisplay(Display d)
         {
-            String fred = "g";
-            foreach (var s in Screen.AllScreens) 
+            if (d.TopBanner != null)
             {
-                foreach (var d in Displays)
-                {
-                    String displayId = d.Key;
-                    
-                    String ScreenId = GenerateUniqueId(s);
-                    if (displayId == ScreenId) 
-                    {
-                        fred = "a";
-                    }
-                    
-                }
+                d.TopBanner.Close();
             }
-
+            if (d.BottomBanner != null)
+            {
+                d.BottomBanner.Close();
+            }
+            Displays.Remove(d.DeviceId);
         }
         private Rect GetScaledScreen(Screen s)
         {
             Rect r = s.WorkingArea;
-            Rect scaledScreen = new Rect(
+            Rect scaledScreen = new (
                     (r.Left / s.ScaleFactor),
                     (r.Top / s.ScaleFactor),
                     (r.Width / s.ScaleFactor),
@@ -107,7 +98,7 @@ namespace ClassBanner
         {
             var mainWindow = new MainWindow(ShowOnBottom);
             Rect r = s.WorkingArea;
-            Rect scaledScreen = GetScaledScreen(s);
+            Rect scaledScreen = Display.GetScaledScreen(s);
             String bannerPosition;
 
             if (ShowOnBottom)
@@ -123,34 +114,39 @@ namespace ClassBanner
             mainWindow.Bounds = new Rect(mainWindow.Left, mainWindow.Top, mainWindow.Width, mainWindow.Height);
             mainWindow.ScaledScreen = scaledScreen;
             mainWindow.DisplayDevice = s.DeviceName;
-            String displayId = scaledScreen.ToString() + "_" + s.DeviceName;
+            var displayId = scaledScreen.ToString() + "_" + s.DeviceName;
             mainWindow.DisplayIdentifier = displayId;
-            this.Add(displayId, mainWindow);
+            Add(displayId, mainWindow);
             mainWindow.Show();
+            mainWindow.Topmost = true;
+        }
+        public void Refresh()
+        {
+            Dictionary<String, Screen?> AllScreensList = new();
+            foreach (var s in Screen.AllScreens)
+            {
+                String ScreenId = GenerateUniqueId(s);
+                AllScreensList.Add(ScreenId, s);
+                if (!Displays.ContainsKey(ScreenId))
+                {
+                    CreateBannerWindowObj(s, false);
+                    if (ShowOnBottom)
+                    {
+                        CreateBannerWindowObj(s, true);
+                    }
+                }
+            }
+
+            foreach (var d in Displays)
+            {
+                String displayId = d.Key;
+                if (!AllScreensList.ContainsKey(d.Key))
+                {
+                    DisposeDisplay(d.Value);
+                }
+            }
+
         }
 
-    }
-    public class Display
-    {
-        public String DeviceId = "";
-        public MainWindow? TopBanner;
-        public MainWindow? BottomBanner;
-        public Display(String Id,MainWindow? Top=null, MainWindow? Bottom = null) 
-        {
-            DeviceId = Id;
-            TopBanner = Top;
-            BottomBanner = Bottom;
-        }
-        private Rect GetScaledScreen(Screen s)
-        {
-            Rect r = s.WorkingArea;
-            Rect scaledScreen = new Rect(
-                    (r.Left / s.ScaleFactor),
-                    (r.Top / s.ScaleFactor),
-                    (r.Width / s.ScaleFactor),
-                    (r.Height / s.ScaleFactor)
-            );
-            return scaledScreen;
-        }
     }
 }
