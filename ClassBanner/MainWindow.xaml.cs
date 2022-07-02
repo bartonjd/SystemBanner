@@ -16,7 +16,7 @@ namespace ClassBanner
     //
     public partial class MainWindow : Window
     {
-        private bool isBottom;
+        private bool ShowOnBottom;
         public String BannerPosition;
         private DispatcherTimer showTimer;
         private const Int32 BANNER_HEIGHT = 23;
@@ -30,15 +30,16 @@ namespace ClassBanner
         private String LeftDisplay = "";
         private String RightDisplay = "";
         public Rect ScaledScreen;
-        public String DisplayDevice;
-        public String DisplayIdentifier;
+        public String? DisplayDevice;
+        public String? DisplayIdentifier;
         internal Rect Bounds;
 
-        public MainWindow(bool isBottom=false)
+        public MainWindow(bool ShowOnBottom=false)
         {
             InitializeComponent();
             this.DataContext = this;
-            BannerPosition = (isBottom) ? "bottom" : "top";
+            this.ShowOnBottom = ShowOnBottom;
+            BannerPosition = (ShowOnBottom) ? "bottom" : "top";
             showTimer = new DispatcherTimer();
             showTimer.Interval = TimeSpan.FromSeconds(3);
             showTimer.Tick += (s, _) => this.Window_Show();
@@ -109,7 +110,7 @@ namespace ClassBanner
             if (Visibility == Visibility.Hidden)
             {
                 Point mousePos = GetCursorPosition();
-                if (!isBottom) {
+                if (!ShowOnBottom) {
                     if (mousePos.Y <= this.Bounds.Bottom)
                     {
                         return;

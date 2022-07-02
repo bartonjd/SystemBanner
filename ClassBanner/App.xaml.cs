@@ -17,7 +17,7 @@ namespace ClassBanner
 
         protected override void OnStartup(StartupEventArgs e)
         {
-
+            Boolean exists = Reg.PropertyExists(@"HKLM\SOFTWARE\ClassBanner","BannerLabel");
             base.OnStartup(e);
             SystemEvents.DisplaySettingsChanged += new EventHandler(SystemEvents_DisplaySettingsChanged);
             WDM.Init();
@@ -40,27 +40,11 @@ namespace ClassBanner
 
         private void SystemEvents_DisplaySettingsChanged(object? sender,EventArgs e)
         {
+            //Sleep to ensure displays finish adjusting after a display is added or removed
+            //if this is not done the banner will often move to the wrong position by performing
+            //calculations before the correct screen size can be determined
             Thread.Sleep(5000);
             WDM.Refresh();
-            /*
-            List<String> screenBounds = new List<String>();
-            foreach (var sb in Screen.AllScreens) 
-            {
-                String boundString = GetScaledScreen(sb).ToString() + sb.DeviceName;
-                screenBounds.Add(boundString);
-            }
-            //Screen.AllScreens[0];
-            foreach (var mw in MainWindowList) {
-               
-                string[] displayInfo = mw.Key.Split('@');
-
-                bool screenExists = screenBounds.Contains(displayInfo[0]);
-                if (screenExists) {
-                    mw.Value.Close();
-                }
-                string bob = "l";
-            }
-            */
         }
     }
 }

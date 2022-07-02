@@ -15,7 +15,6 @@ namespace ClassBanner
 {
     partial class MainWindow
     {
-        
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             WindowInteropHelper wndHelper = new WindowInteropHelper(this);
@@ -29,16 +28,12 @@ namespace ClassBanner
         [Flags]
         public enum ExtendedWindowStyles
         {
-            // ...
             WS_EX_TOOLWINDOW = 0x00000080,
-            // ...
         }
 
         public enum GetWindowLongFields
         {
-            // ...
             GWL_EXSTYLE = (-20),
-            // ...
         }
 
         [DllImport("user32.dll")]
