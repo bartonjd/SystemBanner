@@ -1,20 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Interop;
 using System.Runtime.InteropServices;
 using System.Windows;
-
+using System.ComponentModel;
+using ClassBanner;
 /*
  * Code provided by Franci Penov under CC BY-SA 4.0: https://stackoverflow.com/a/551847
  * Partial class prevents application from being shown in ALT + TAB menu
 */
 namespace ClassBanner
 {
-    partial class MainWindow
+    public partial class Banner
+
     {
+
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             WindowInteropHelper wndHelper = new WindowInteropHelper(this);
@@ -146,7 +146,27 @@ namespace ClassBanner
 
             return lpPoint;
         }
+        public void InitBannerWindow()
+        {
+        }
 
-    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
 
 }

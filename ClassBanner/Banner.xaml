@@ -1,0 +1,41 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        x:Class="ClassBanner.Banner"
+        mc:Ignorable="d" WindowStyle="None" WindowState="Normal"
+        AllowsTransparency="true"
+        Background="#008000"
+        VerticalAlignment="Top"
+        Height="24"
+        SizeToContent="Manual"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        IsTabStop="False"
+        Width="{x:Static SystemParameters.PrimaryScreenWidth}"
+        Deactivated="Window_Deactivated"
+        Top="0"
+        Left="0"
+        MouseEnter="Window_MouseEnter"
+        Activated="Window_Activated" Loaded="Window_Loaded">
+
+    <Window.Resources>
+        <ObjectDataProvider x:Key="myDataSource">
+            <ObjectDataProvider.ConstructorParameters>
+
+            </ObjectDataProvider.ConstructorParameters>
+        </ObjectDataProvider>
+        </Window.Resources>
+            <DockPanel VerticalAlignment="Top">
+        <StackPanel DockPanel.Dock="Left" VerticalAlignment="Center">
+            <Label x:Name="lblLeftDisplay" Content=""  HorizontalAlignment="Left" FontWeight="Bold" Margin="0,-2,0,0"/>
+        </StackPanel>
+        <StackPanel DockPanel.Dock="Right" VerticalAlignment="Center">
+            <Label x:Name="lblRightDisplay" Content="" HorizontalContentAlignment="Right" FontWeight="Bold" Margin="0,-2,0,0" Foreground="#000000"/>
+        </StackPanel>
+        <StackPanel VerticalAlignment="Center">
+            <Label x:Name="lblBannerLabel" Content="CENTER" HorizontalContentAlignment="Center" FontWeight="Bold" Margin="0,-2,0,0"/>
+        </StackPanel>
+    </DockPanel>
+</Window>

@@ -8,9 +8,9 @@ namespace ClassBanner
     public class Display
     {
         public String DeviceId = "";
-        public MainWindow? TopBanner = null;
-        public MainWindow? BottomBanner = null;
-        public Display(String Id,MainWindow? Top=null, MainWindow? Bottom = null) 
+        public Banner? TopBanner = null;
+        public Banner? BottomBanner = null;
+        public Display(String Id, Banner? Top=null, Banner? Bottom = null) 
         {
             DeviceId = Id;
             TopBanner = Top;

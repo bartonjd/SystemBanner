@@ -12,8 +12,8 @@ namespace ClassBanner
     /// </summary>
     public partial class App : Application
     {
-        public Dictionary<String, MainWindow> MainWindowList = new Dictionary<String, MainWindow>();
-        public WindowManager WDM = new WindowManager();
+        public Dictionary<String, Banner> BannerList = new Dictionary<String, Banner>();
+        public BannerManager WDM = new BannerManager();
 
         protected override void OnStartup(StartupEventArgs e)
         {

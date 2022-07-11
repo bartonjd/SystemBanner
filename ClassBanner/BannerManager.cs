@@ -7,9 +7,9 @@ using Microsoft.Win32;
 
 namespace ClassBanner
 {
-    public class WindowManager
+    public class BannerManager
     {
-        public Dictionary<String, MainWindow> MainWindowList = new Dictionary<String, MainWindow>();
+        public Dictionary<String, Banner> BannerList = new Dictionary<String, Banner>();
         public bool ShowOnBottom = true;
         public Dictionary<String, Display> Displays = new Dictionary<String, Display>();
         public void Init()
@@ -28,15 +28,15 @@ namespace ClassBanner
             }
             foreach (var ss in Screen.AllScreens)
             {
-                this.CreateBannerWindowObj(ss);
+                this.CreateBanner(ss);
                 if (ShowOnBottom)
                 {
-                    this.CreateBannerWindowObj(ss, true);
+                    this.CreateBanner(ss, true);
                 }
             }
             //Refresh();
         }
-        public void Add(String DisplayId, MainWindow mw)
+        public void Add(String DisplayId, Banner mw)
         {
             Display? DisplayInfo;
             if (Displays.ContainsKey(DisplayId))
@@ -94,31 +94,32 @@ namespace ClassBanner
             String UniqueId = scaledScreen.ToString() + "_" + s.DeviceName;
             return UniqueId;
         }
-        private void CreateBannerWindowObj(Screen s, bool ShowOnBottom = false)
+        private void CreateBanner(Screen s, bool ShowOnBottom = false)
         {
-            var mainWindow = new MainWindow(ShowOnBottom);
+            var banner = new Banner(ShowOnBottom);
             Rect r = s.WorkingArea;
             Rect scaledScreen = Display.GetScaledScreen(s);
             String bannerPosition;
 
             if (ShowOnBottom)
             {
-                mainWindow.Top = (scaledScreen.Bottom) - mainWindow.Height;
+                banner.Top = (scaledScreen.Bottom) - banner.Height;
             }
             else
             {
-                mainWindow.Top = scaledScreen.Top;
+                banner.Top = scaledScreen.Top;
             }
-            mainWindow.Left = scaledScreen.Left;
-            mainWindow.Width = scaledScreen.Width;
-            mainWindow.Bounds = new Rect(mainWindow.Left, mainWindow.Top, mainWindow.Width, mainWindow.Height);
-            mainWindow.ScaledScreen = scaledScreen;
-            mainWindow.DisplayDevice = s.DeviceName;
+            banner.Left = scaledScreen.Left;
+            banner.Width = scaledScreen.Width;
+            banner.Bounds = new Rect(banner.Left, banner.Top, banner.Width, banner.Height);
+            banner.ScaledScreen = scaledScreen;
+            banner.DisplayDevice = s.DeviceName;
+            banner.Display = s;
             var displayId = scaledScreen.ToString() + "_" + s.DeviceName;
-            mainWindow.DisplayIdentifier = displayId;
-            Add(displayId, mainWindow);
-            mainWindow.Show();
-            mainWindow.Topmost = true;
+            banner.DisplayIdentifier = displayId;
+            Add(displayId, banner);
+            banner.Show();
+            banner.Topmost = true;
         }
         public void Refresh()
         {
@@ -129,10 +130,10 @@ namespace ClassBanner
                 AllScreensList.Add(ScreenId, s);
                 if (!Displays.ContainsKey(ScreenId))
                 {
-                    CreateBannerWindowObj(s, false);
+                    CreateBanner(s, false);
                     if (ShowOnBottom)
                     {
-                        CreateBannerWindowObj(s, true);
+                        CreateBanner(s, true);
                     }
                 }
             }
