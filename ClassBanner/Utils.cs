@@ -3,7 +3,7 @@ using Microsoft.Win32;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace ClassBanner
+namespace DesktopBanner
 {
     public class Utils
     {

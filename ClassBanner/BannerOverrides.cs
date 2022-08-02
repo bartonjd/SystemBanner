@@ -4,12 +4,12 @@ using System.Windows.Interop;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.ComponentModel;
-using ClassBanner;
+using DesktopBanner;
 /*
  * Code provided by Franci Penov under CC BY-SA 4.0: https://stackoverflow.com/a/551847
  * Partial class prevents application from being shown in ALT + TAB menu
 */
-namespace ClassBanner
+namespace DesktopBanner
 {
     public partial class Banner
 

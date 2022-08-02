@@ -5,7 +5,7 @@ using WpfScreenHelper;
 using Microsoft.Win32;
 using System.Threading;
 
-namespace ClassBanner
+namespace DesktopBanner
 {
     /// <summary>
     /// Interaction logic for App.xaml
@@ -17,9 +17,10 @@ namespace ClassBanner
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            Boolean exists = Reg.PropertyExists(@"HKLM\SOFTWARE\ClassBanner","BannerLabel");
+            Boolean exists = Reg.PropertyExists(@"HKLM\SOFTWARE\DesktopBanner","BannerLabel");
             base.OnStartup(e);
             SystemEvents.DisplaySettingsChanged += new EventHandler(SystemEvents_DisplaySettingsChanged);
+            
             WDM.Init();
 
         }

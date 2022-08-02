@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Windows;
 using WpfScreenHelper;
-using ClassBanner;
+using DesktopBanner;
 
-namespace ClassBanner
+namespace DesktopBanner
 {
     public class Display
     {

@@ -2,7 +2,7 @@
 using Microsoft.Win32;
 using System.Text.RegularExpressions;
 
-namespace ClassBanner
+namespace DesktopBanner
 {
     public class Reg
     {

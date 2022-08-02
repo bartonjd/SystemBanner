@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace ClassBanner
+namespace DesktopBanner
 {
     internal static class NativeMethods
     {

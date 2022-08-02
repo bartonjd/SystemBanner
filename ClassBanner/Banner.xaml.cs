@@ -9,12 +9,12 @@ using System.Runtime.InteropServices;
 using System.Windows.Interop;
 
 
-namespace ClassBanner
+namespace DesktopBanner
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for Banner.xaml
     /// </summary>
-    //
+
     using System.Windows.Media;
     using static NativeMethods;
 
@@ -23,10 +23,11 @@ namespace ClassBanner
         private bool ShowOnBottom;
         public String BannerPosition;
         private DispatcherTimer showTimer;
+        private int? BannerType = 2;
         private const Int32 BANNER_HEIGHT = 23;
         private Double REGULAR_OPACITY = 1.0;
-        private Dictionary<string, string> ClassificationColors;
-        private Dictionary<string, string> ClassificationLabels;
+        private Dictionary<string, string> BannerColors;
+        private Dictionary<string, string> BannerLabels;
         private String HostName = "";
         private String CurrentUser = "";
         public String? BannerLabel = "";
@@ -39,7 +40,6 @@ namespace ClassBanner
         public Rect ScaledScreen;
         public String? DisplayDevice;
         public String? DisplayIdentifier;
-        //internal Rect Bounds;
         public Rect Bounds;
         private bool IsAppBarRegistered;
         private bool IsInAppBarResize;
@@ -57,40 +57,44 @@ namespace ClassBanner
         public Banner(bool ShowOnBottom = false)
         {
             InitializeComponent();
-            this.DataContext = this;
+            DataContext = this;
             this.ShowOnBottom = ShowOnBottom;
             BannerPosition = (ShowOnBottom) ? "bottom" : "top";
             showTimer = new DispatcherTimer();
             showTimer.Interval = TimeSpan.FromSeconds(3);
-            showTimer.Tick += (s, _) => this.Window_Show();
+            showTimer.Tick += (s, _) => Window_Show();
 
-            if (ShowOnBottom)
+
+            if (ShowOnBottom && BannerType == 2)
             {
-                this.DockMode = AppBarDockMode.Bottom;
+                DockMode = AppBarDockMode.Bottom;
             }
             else {
-                this.DockMode = AppBarDockMode.Top;
+                DockMode = AppBarDockMode.Top;
             }
         
-            ClassificationColors = new()
+            BannerColors = new()
             {
                 {"UNCATEGORIZED", "#008000"}
             };
 
-            ClassificationLabels = new()
+            BannerLabels = new()
             {
                 {"UNCATEGORIZED", "Uncategorized"}
             };
 
-            bool checkRegPath = Reg.KeyExists(@"HKEY_LOCAL_MACHINE\SOFTWARE\ClassBanner\");
+            bool checkRegPath = Reg.KeyExists(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\");
             if (checkRegPath)
             {
-                String? LeftDisplayFormat = Reg.GetString(@"HKEY_LOCAL_MACHINE\SOFTWARE\ClassBanner\", "LeftDisplay");
-                String? RightDisplayFormat = Reg.GetString(@"HKEY_LOCAL_MACHINE\SOFTWARE\ClassBanner\", "RightDisplay");
-                BannerLabel = Reg.GetString(@"HKEY_LOCAL_MACHINE\SOFTWARE\ClassBanner\", "BannerLabel");
-                //Function still doesn't work with bools
-                //bool HideOnBannerMouseOver = bool.Parse(Utils.GetRegValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\ClassBanner\", "HideOnMouseOver"));
-                Double BannerOpacityLvl = Reg.GetDouble(@"HKEY_LOCAL_MACHINE\SOFTWARE\ClassBanner\", "BannerOpacity");
+                String? LeftDisplayFormat = Reg.GetString(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "LeftDisplay");
+                String? RightDisplayFormat = Reg.GetString(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "RightDisplay");
+                BannerLabel = Reg.GetString(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "BannerLabel");
+                //BannerType 1 is Rollup banner (hides on mouseover, BannerType 2 is static banner 
+                if (Reg.PropertyExists(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "BannerType"))
+                {
+                    BannerType = (int?)Reg.GetInt(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "BannerType");
+                }
+                Double BannerOpacityLvl = Reg.GetDouble(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "BannerOpacity");
                 if (BannerOpacityLvl == -1)
                 {
                     BannerOpacityLvl = REGULAR_OPACITY;
@@ -139,41 +143,49 @@ namespace ClassBanner
 
         private void Window_Show()
         {
-
-            if (Visibility == Visibility.Hidden)
+            if (BannerType == 1)
             {
-                Point mousePos = GetCursorPosition();
-                if (!ShowOnBottom) {
-                    if (mousePos.Y <= this.Bounds.Bottom)
-                    {
-                        return;
-                    }
-                } else {
-                    if (mousePos.Y >= this.Bounds.Top)
-                    {
-                        return;
-                    }
-                }
-                Visibility = Visibility.Visible;
-                var anim = new DoubleAnimation(REGULAR_OPACITY, (Duration)TimeSpan.FromSeconds(.5), FillBehavior.Stop);
-                anim.Completed += (s, _) =>
+                if (Visibility == Visibility.Hidden)
                 {
-                    showTimer.Stop();
-                    this.BeginAnimation(Window.HeightProperty, null);
-                };
-                this.BeginAnimation(UIElement.OpacityProperty, anim);
+                    Point mousePos = GetCursorPosition();
+                    if (!ShowOnBottom)
+                    {
+                        if (mousePos.Y <= Bounds.Bottom)
+                        {
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        if (mousePos.Y >= Bounds.Top)
+                        {
+                            return;
+                        }
+                    }
+                    Visibility = Visibility.Visible;
+                    var anim = new DoubleAnimation(REGULAR_OPACITY, (Duration)TimeSpan.FromSeconds(.5), FillBehavior.Stop);
+                    anim.Completed += (s, _) =>
+                    {
+                        showTimer.Stop();
+                        BeginAnimation(Window.HeightProperty, null);
+                    };
+                    BeginAnimation(UIElement.OpacityProperty, anim);
+                }
             }
         }
         private void Window_MouseEnter(object sender, EventArgs e)
         {
-            //stop expanding
-            var anim = new DoubleAnimation(REGULAR_OPACITY, (Duration)TimeSpan.FromSeconds(.5), FillBehavior.Stop);
-            anim.Completed += (s, _) =>
+            if (BannerType == 1)
             {
-                this.Hide();
-            };
-            this.BeginAnimation(UIElement.OpacityProperty, anim);
-            showTimer.Start();
+                //stop expanding
+                var anim = new DoubleAnimation(REGULAR_OPACITY, (Duration)TimeSpan.FromSeconds(.5), FillBehavior.Stop);
+                anim.Completed += (s, _) =>
+                {
+                    Hide();
+                };
+                BeginAnimation(UIElement.OpacityProperty, anim);
+                showTimer.Start();
+            }
         }
 
         private void Window_Activated(object sender, EventArgs e)
@@ -181,11 +193,6 @@ namespace ClassBanner
 
 
         }
-        //
-        //
-        //
-        //
-        //
 
         public AppBarDockMode DockMode
         {
@@ -274,26 +281,29 @@ namespace ClassBanner
 
         protected override void OnSourceInitialized(EventArgs e)
         {
-            base.OnSourceInitialized(e);
-
-            // add the hook, setup the appbar
-            var source = (HwndSource)PresentationSource.FromVisual(this);
-
-            if (!ShowInTaskbar)
+            if (BannerType == 2)
             {
-                var exstyle = (ulong)GetWindowLongPtr(source.Handle, GWL_EXSTYLE);
-                exstyle |= (ulong)((uint)WS_EX_TOOLWINDOW);
-                SetWindowLongPtr(source.Handle, GWL_EXSTYLE, unchecked((IntPtr)exstyle));
+                base.OnSourceInitialized(e);
+
+                // add the hook, setup the appbar
+                var source = (HwndSource)PresentationSource.FromVisual(this);
+
+                if (!ShowInTaskbar)
+                {
+                    var exstyle = (ulong)GetWindowLongPtr(source.Handle, GWL_EXSTYLE);
+                    exstyle |= (ulong)((uint)WS_EX_TOOLWINDOW);
+                    SetWindowLongPtr(source.Handle, GWL_EXSTYLE, unchecked((IntPtr)exstyle));
+                }
+
+                source.AddHook(WndProc);
+
+                var abd = GetAppBarData();
+                SHAppBarMessage(ABM.NEW, ref abd);
+
+                // set our initial location
+                this.IsAppBarRegistered = true;
+                OnDockLocationChanged();
             }
-
-            source.AddHook(WndProc);
-
-            var abd = GetAppBarData();
-            SHAppBarMessage(ABM.NEW, ref abd);
-
-            // set our initial location
-            this.IsAppBarRegistered = true;
-            OnDockLocationChanged();
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -304,12 +314,14 @@ namespace ClassBanner
             {
                 return;
             }
-
-            if (IsAppBarRegistered)
+            if (BannerType == 2)
             {
-                var abd = GetAppBarData();
-                SHAppBarMessage(ABM.REMOVE, ref abd);
-                IsAppBarRegistered = false;
+                if (IsAppBarRegistered)
+                {
+                    var abd = GetAppBarData();
+                    SHAppBarMessage(ABM.REMOVE, ref abd);
+                    IsAppBarRegistered = false;
+                }
             }
         }
 
@@ -446,6 +458,3 @@ namespace ClassBanner
         Bottom
     }
 }
-
-
-

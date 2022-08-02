@@ -4,8 +4,8 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Threading;
-using ClassBanner;
-namespace ClassBanner
+using DesktopBanner;
+namespace DesktopBanner
 {
     public enum ABEdge : int
     {

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using WpfScreenHelper;
 using Microsoft.Win32;
 
-namespace ClassBanner
+namespace DesktopBanner
 {
     public class BannerManager
     {
@@ -16,7 +16,7 @@ namespace ClassBanner
         {
 
             bool ShowOnBottom = false;
-            //string ShowBottomBanner = Utils.GetRegValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\ClassBanner\", "ShowBottomBanner");
+            //string ShowBottomBanner = Utils.GetRegValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "ShowBottomBanner");
             string ShowBottomBanner = "1";
             if (ShowBottomBanner == "1")
             {

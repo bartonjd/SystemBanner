@@ -6,10 +6,10 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using static ClassBanner.NativeMethods;
+using static DesktopBanner.NativeMethods;
 using WpfScreenHelper;
 
-namespace ClassBanner
+namespace DesktopBanner
 {
     public sealed class MonitorInfo : IEquatable<MonitorInfo>
     {

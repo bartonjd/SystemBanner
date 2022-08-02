@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32519.379
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClassBanner", "ClassBanner\ClassBanner.csproj", "{44F58EE6-18CB-4BF9-B71A-C332A70B1826}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesktopBanner", "ClassBanner\DesktopBanner.csproj", "{44F58EE6-18CB-4BF9-B71A-C332A70B1826}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
