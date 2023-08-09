@@ -20,8 +20,8 @@ namespace DesktopBanner
 
     public partial class Banner : Window
     {
-        private bool ShowOnBottom;
-        public String BannerPosition;
+        public bool ShowOnBottom { get; set; }
+        public String? BannerPosition { get; set; }
         private DispatcherTimer showTimer;
         private int? BannerType = 2;
         private const Int32 BANNER_HEIGHT = 23;
@@ -34,7 +34,7 @@ namespace DesktopBanner
 
         public String BannerColor = "#008000";
         public String TextColor = "#000000";
-        public Screen Display;
+        public Screen? Display;
         public String LeftDisplay = "";
         public String RightDisplay = "";
         public Rect ScaledScreen;
@@ -113,6 +113,7 @@ namespace DesktopBanner
                         LeftDisplay = CurrentUser;
                         break;
                     default:
+                        LeftDisplay = LeftDisplayFormat ?? "";
                         break;
                 }
                 switch (RightDisplayFormat)
@@ -124,6 +125,7 @@ namespace DesktopBanner
                         RightDisplay = CurrentUser;
                         break;
                     default:
+                        RightDisplay = RightDisplayFormat ?? "";
                         break;
                 }
                 
@@ -229,7 +231,7 @@ namespace DesktopBanner
             var @this = (Banner)d;
             var newValue = (int)baseValue;
 
-            switch (@this.DockMode)
+/*            switch (@this.DockMode)
             {
                 case AppBarDockMode.Left:
                 case AppBarDockMode.Right:
@@ -240,10 +242,21 @@ namespace DesktopBanner
                     return BoundIntToDouble(newValue, @this.MinHeight, @this.MaxHeight);
 
                 default: throw new NotSupportedException();
-            }
-        }
+            }*/
 
-        private static int BoundIntToDouble(int value, double min, double max)
+            return @this.DockMode switch { 
+
+                AppBarDockMode.Left  => BoundIntToDouble(newValue, @this.MinWidth, @this.MaxWidth),
+                AppBarDockMode.Right => BoundIntToDouble(newValue, @this.MinWidth, @this.MaxWidth),
+
+                AppBarDockMode.Top => BoundIntToDouble(newValue, @this.MinHeight, @this.MaxHeight),
+                AppBarDockMode.Bottom => BoundIntToDouble(newValue, @this.MinHeight, @this.MaxHeight),
+
+                _                     => throw new NotSupportedException()
+            };
+        }
+    
+    private static int BoundIntToDouble(int value, double min, double max)
         {
             if (min > value)
             {
@@ -418,12 +431,13 @@ namespace DesktopBanner
             else if (msg == WM_ACTIVATE)
             {
                 var abd = GetAppBarData();
-                SHAppBarMessage(ABM.ACTIVATE, ref abd);
+                uint hresult = SHAppBarMessage(ABM.ACTIVATE, ref abd);
+                var bob = 0;
             }
             else if (msg == WM_WINDOWPOSCHANGED)
             {
                 var abd = GetAppBarData();
-                SHAppBarMessage(ABM.WINDOWPOSCHANGED, ref abd);
+                uint hresult = SHAppBarMessage(ABM.WINDOWPOSCHANGED, ref abd);
             }
             else if (msg == AppBarMessageId)
             {
