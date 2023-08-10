@@ -23,7 +23,7 @@ namespace DesktopBanner
         public bool ShowOnBottom { get; set; }
         public String? BannerPosition { get; set; }
         private DispatcherTimer showTimer;
-        private int? BannerType = 2;
+        public int? BannerType = 1;
         private const Int32 BANNER_HEIGHT = 23;
         private Double REGULAR_OPACITY = 1.0;
         private Dictionary<string, string> BannerColors;
@@ -42,8 +42,8 @@ namespace DesktopBanner
         public String? DisplayIdentifier;
         public Rect Bounds;
         private bool IsAppBarRegistered;
+        private bool IsAppBarPositioned = false;
         private bool IsInAppBarResize;
-
 
         static Banner()
         {
@@ -86,8 +86,8 @@ namespace DesktopBanner
             bool checkRegPath = Reg.KeyExists(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\");
             if (checkRegPath)
             {
-                String? LeftDisplayFormat = Reg.GetString(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "LeftDisplay");
-                String? RightDisplayFormat = Reg.GetString(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "RightDisplay");
+                String? LeftBannerLabel = Reg.GetString(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "LeftDisplay");
+                String? RightBannerLabel = Reg.GetString(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "RightDisplay");
                 BannerLabel = Reg.GetString(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "BannerLabel");
                 //BannerType 1 is Rollup banner (hides on mouseover, BannerType 2 is static banner 
                 if (Reg.PropertyExists(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "BannerType"))
@@ -104,30 +104,13 @@ namespace DesktopBanner
                 HostName = Utils.GetHostName();
                 CurrentUser = Utils.GetCurrentUser();
 
-                switch (LeftDisplayFormat)
-                {
-                    case "@HOST":
-                        LeftDisplay = HostName;
-                        break;
-                    case "@USER":
-                        LeftDisplay = CurrentUser;
-                        break;
-                    default:
-                        LeftDisplay = LeftDisplayFormat ?? "";
-                        break;
-                }
-                switch (RightDisplayFormat)
-                {
-                    case "@HOST":
-                        RightDisplay = HostName;
-                        break;
-                    case "@USER":
-                        RightDisplay = CurrentUser;
-                        break;
-                    default:
-                        RightDisplay = RightDisplayFormat ?? "";
-                        break;
-                }
+                LeftDisplay = LeftBannerLabel ?? "";
+                LeftDisplay = LeftBannerLabel.Replace("@HOST", HostName);
+                LeftDisplay = LeftBannerLabel.Replace("@USER", CurrentUser);
+               
+                RightDisplay = RightBannerLabel ?? "";
+                RightDisplay = RightBannerLabel.Replace("@HOST", HostName);
+                RightDisplay = RightBannerLabel.Replace("@USER", CurrentUser);
                 
                 lblLeftDisplay.Content = LeftDisplay;
                 lblRightDisplay.Content = RightDisplay;
@@ -136,7 +119,17 @@ namespace DesktopBanner
 
 
         }
+        public void Unregister() {
+            if (IsAppBarRegistered)
+            {
+                var abd = GetAppBarData();
+                SHAppBarMessage(ABM.REMOVE, ref abd);
+                IsAppBarRegistered = false;
+                IsAppBarPositioned = false;
+            }
+        }
 
+        
         private void Window_Deactivated(object sender, EventArgs e)
         {
             Window window = (Window)sender;
@@ -224,7 +217,7 @@ namespace DesktopBanner
 
         public static readonly DependencyProperty DockedWidthOrHeightProperty =
             DependencyProperty.Register("DockedWidthOrHeight", typeof(int), typeof(Banner),
-                new FrameworkPropertyMetadata(23, DockLocation_Changed, DockedWidthOrHeight_Coerce));
+                new FrameworkPropertyMetadata(BANNER_HEIGHT, DockLocation_Changed, DockedWidthOrHeight_Coerce));
 
         private static object DockedWidthOrHeight_Coerce(DependencyObject d, object baseValue)
         {
@@ -249,7 +242,7 @@ namespace DesktopBanner
                 AppBarDockMode.Left  => BoundIntToDouble(newValue, @this.MinWidth, @this.MaxWidth),
                 AppBarDockMode.Right => BoundIntToDouble(newValue, @this.MinWidth, @this.MaxWidth),
 
-                AppBarDockMode.Top => BoundIntToDouble(newValue, @this.MinHeight, @this.MaxHeight),
+                AppBarDockMode.Top    => BoundIntToDouble(newValue, @this.MinHeight, @this.MaxHeight),
                 AppBarDockMode.Bottom => BoundIntToDouble(newValue, @this.MinHeight, @this.MaxHeight),
 
                 _                     => throw new NotSupportedException()
@@ -358,41 +351,48 @@ namespace DesktopBanner
             {
                 return;
             }
-            
-            var abd = GetAppBarData();
-            abd.rc = (RECT)Display.Bounds;
-
-            SHAppBarMessage(ABM.QUERYPOS, ref abd);
-
-            var dockedWidthOrHeightInDesktopPixels = WpfDimensionToDesktop(DockedWidthOrHeight);
-            switch (DockMode)
+            if (!IsAppBarPositioned)
             {
-                case AppBarDockMode.Top:
-                    abd.rc.bottom = abd.rc.top + dockedWidthOrHeightInDesktopPixels;
-                    break;
-                case AppBarDockMode.Bottom:
-                    abd.rc.top = abd.rc.bottom - dockedWidthOrHeightInDesktopPixels;
-                    break;
-                case AppBarDockMode.Left:
-                    abd.rc.right = abd.rc.left + dockedWidthOrHeightInDesktopPixels;
-                    break;
-                case AppBarDockMode.Right:
-                    abd.rc.left = abd.rc.right - dockedWidthOrHeightInDesktopPixels;
-                    break;
-                default: throw new NotSupportedException();
+                var abd = GetAppBarData();
+                abd.rc = (RECT)Display.Bounds;
+
+                SHAppBarMessage(ABM.QUERYPOS, ref abd);
+
+                var dockedWidthOrHeightInDesktopPixels = WpfDimensionToDesktop(DockedWidthOrHeight);
+                if ((abd.rc.Height > 300) || (abd.rc.Height == 0))
+                {
+                    switch (DockMode)
+                    {
+                        case AppBarDockMode.Top:
+                            abd.rc.bottom = abd.rc.top + dockedWidthOrHeightInDesktopPixels;
+                            break;
+                        case AppBarDockMode.Bottom:
+                            abd.rc.top = (int)(Display.WorkingArea.Bottom - dockedWidthOrHeightInDesktopPixels);
+                            break;
+                        case AppBarDockMode.Left:
+                            abd.rc.right = abd.rc.left + dockedWidthOrHeightInDesktopPixels;
+                            break;
+                        case AppBarDockMode.Right:
+                            abd.rc.left = abd.rc.right - dockedWidthOrHeightInDesktopPixels;
+                            break;
+                        default: throw new NotSupportedException();
+                    }
+                }
+
+                SHAppBarMessage(ABM.SETPOS, ref abd);
+                IsInAppBarResize = true;
+                try
+                {
+                    WindowBounds = (Rect)abd.rc;
+                }
+                finally
+                {
+                    IsInAppBarResize = false;
+                }
+
+                IsAppBarPositioned = true;
             }
 
-            SHAppBarMessage(ABM.SETPOS, ref abd);
-            IsInAppBarResize = true;
-            try
-            {
-                WindowBounds = (Rect)abd.rc;
-            }
-            finally
-            {
-                IsInAppBarResize = false;
-            }
-            
         }
 
         private APPBARDATA GetAppBarData()
@@ -432,7 +432,6 @@ namespace DesktopBanner
             {
                 var abd = GetAppBarData();
                 uint hresult = SHAppBarMessage(ABM.ACTIVATE, ref abd);
-                var bob = 0;
             }
             else if (msg == WM_WINDOWPOSCHANGED)
             {

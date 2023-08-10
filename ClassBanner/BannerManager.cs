@@ -1,22 +1,21 @@
 ﻿using System;
-using System.Collections;
 using System.Windows;
 using System.Collections.Generic;
 using WpfScreenHelper;
-using Microsoft.Win32;
 
 namespace DesktopBanner
 {
     public class BannerManager
     {
-        public Dictionary<String, Banner> BannerList = new Dictionary<String, Banner>();
+        public Dictionary<String, Banner> BannerList = new ();
         public bool ShowOnBottom = true;
-        public Dictionary<String, Display> Displays = new Dictionary<String, Display>();
+        public Dictionary<String, Display> Displays = new ();
         public void Init()
         {
 
             bool ShowOnBottom = false;
             //string ShowBottomBanner = Utils.GetRegValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "ShowBottomBanner");
+            //////
             string ShowBottomBanner = "1";
             if (ShowBottomBanner == "1")
             {
@@ -69,26 +68,28 @@ namespace DesktopBanner
         {
             if (d.TopBanner != null)
             {
+                d.TopBanner.Unregister();
                 d.TopBanner.Close();
             }
             if (d.BottomBanner != null)
             {
+                d.BottomBanner.Unregister();
                 d.BottomBanner.Close();
             }
             Displays.Remove(d.DeviceId);
         }
-        private Rect GetScaledScreen(Screen s)
+        private static Rect GetScaledScreen(Screen s)
         {
             Rect r = s.WorkingArea;
             Rect scaledScreen = new (
-                    (r.Left / s.ScaleFactor),
-                    (r.Top / s.ScaleFactor),
-                    (r.Width / s.ScaleFactor),
-                    (r.Height / s.ScaleFactor)
+                (r.Left / s.ScaleFactor),
+                (r.Top / s.ScaleFactor),
+                (r.Width / s.ScaleFactor),
+                (r.Height / s.ScaleFactor)
             );
             return scaledScreen;
         }
-        public String GenerateUniqueId(Screen s) 
+        public static String GenerateUniqueId(Screen s) 
         {
             Rect scaledScreen = GetScaledScreen(s);
             String UniqueId = scaledScreen.ToString() + "_" + s.DeviceName;
@@ -99,7 +100,6 @@ namespace DesktopBanner
             var banner = new Banner(ShowOnBottom);
             Rect r = s.WorkingArea;
             Rect scaledScreen = Display.GetScaledScreen(s);
-            String bannerPosition;
 
             if (ShowOnBottom)
             {
@@ -138,11 +138,21 @@ namespace DesktopBanner
                 }
             }
 
+/*            int? bannerType;
+            if (Reg.PropertyExists(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "BannerType"))
+            {
+                bannerType = (int?)Reg.GetInt(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "BannerType");
+            }
+            else {
+                bannerType = 1;
+            }*/
+
             foreach (var d in Displays)
             {
                 String displayId = d.Key;
                 if (!AllScreensList.ContainsKey(d.Key))
                 {
+
                     DisposeDisplay(d.Value);
                 }
             }
