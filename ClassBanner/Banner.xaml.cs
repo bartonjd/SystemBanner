@@ -65,13 +65,7 @@ namespace DesktopBanner
             showTimer.Tick += (s, _) => Window_Show();
 
 
-            if (ShowOnBottom && BannerType == 2)
-            {
-                DockMode = AppBarDockMode.Bottom;
-            }
-            else {
-                DockMode = AppBarDockMode.Top;
-            }
+
         
             BannerColors = new()
             {
@@ -93,6 +87,14 @@ namespace DesktopBanner
                 if (Reg.PropertyExists(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "BannerType"))
                 {
                     BannerType = (int?)Reg.GetInt(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "BannerType");
+                }
+                if (ShowOnBottom && BannerType == 2)
+                {
+                    DockMode = AppBarDockMode.Bottom;
+                }
+                else
+                {
+                    DockMode = AppBarDockMode.Top;
                 }
                 Double BannerOpacityLvl = Reg.GetDouble(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "BannerOpacity");
                 if (BannerOpacityLvl == -1)
