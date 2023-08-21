@@ -17,7 +17,7 @@ namespace DesktopBanner
 
         static public Dictionary<string, RegistryKey> GetRegHives()
         {
-            Dictionary<string, RegistryKey> RegHives = new Dictionary<string, RegistryKey>();
+            Dictionary<string, RegistryKey> RegHives = new();
             RegHives.Add("LocalMachine", Registry.LocalMachine);
             RegHives.Add("CurrentUser", Registry.CurrentUser);
             return RegHives;

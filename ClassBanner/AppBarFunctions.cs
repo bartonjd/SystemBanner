@@ -50,8 +50,7 @@ namespace DesktopBanner
             }
 
         }
-        private static readonly Dictionary<Window, RegisterInfo> RegisteredWindowInfo
-            = new Dictionary<Window, RegisterInfo>();
+        private static readonly Dictionary<Window, RegisterInfo> RegisteredWindowInfo = new ();
         private static RegisterInfo GetRegisterInfo(Window appbarWindow)
         {
             RegisterInfo reg;
@@ -98,7 +97,7 @@ namespace DesktopBanner
 
         }
 
-        public static void SetAppBar(Window appbarWindow, ABEdge edge, FrameworkElement childElement = null, bool topMost = true)
+        public static void SetAppBar(Window appbarWindow, ABEdge edge, FrameworkElement? childElement = null, bool topMost = true)
         {
             var info = GetRegisterInfo(appbarWindow);
             info.Edge = edge;

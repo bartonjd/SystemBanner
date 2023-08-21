@@ -9,41 +9,73 @@ using System.Runtime.InteropServices;
 using System.Windows.Interop;
 
 
+/// <summary>
+/// Interaction logic for Banner.xaml
+/// </summary>
+
+using System.Windows.Media;
+using static DesktopBanner.NativeMethods;
+
+
 namespace DesktopBanner
 {
-    /// <summary>
-    /// Interaction logic for Banner.xaml
-    /// </summary>
+    //using System.Windows.Navigation;
 
-    using System.Windows.Media;
-    using static NativeMethods;
+    public enum DisplayMode
+    {
+        Overlay = 0,
+        Rollover = 1,
+        Static = 2
+    }
+
 
     public partial class Banner : Window
     {
         public bool ShowOnBottom { get; set; }
-        public String? BannerPosition { get; set; }
+        public string? BannerPosition { get; set; }
         private DispatcherTimer showTimer;
-        public int? BannerType = 1;
-        private const Int32 BANNER_HEIGHT = 23;
-        private Double REGULAR_OPACITY = 1.0;
+        public DisplayMode DisplayMode = DesktopBanner.DisplayMode.Overlay;
+        protected const int BANNER_HEIGHT = 23;
+        // Base registry path, should end with trailing \
+        private const string REG_ROOT = @"HKLM\SOFTWARE\DesktopBanner\";
+        protected double RegularOpacity = 1.0;
         private Dictionary<string, string> BannerColors;
         private Dictionary<string, string> BannerLabels;
-        private String HostName = "";
-        private String CurrentUser = "";
-        public String? BannerLabel = "";
+        private BannerScreenConfig? ScreenConfig;
 
-        public String BannerColor = "#008000";
-        public String TextColor = "#000000";
+        public string BannerColor = "#008000";
+        public string TextColor = "#000000";
         public Screen? Display;
-        public String LeftDisplay = "";
-        public String RightDisplay = "";
+        private string? LeftDisplay = "";
+        public string? CenterDisplay = "";
+        private string? RightDisplay = "";
         public Rect ScaledScreen;
-        public String? DisplayDevice;
-        public String? DisplayIdentifier;
-        public Rect Bounds;
-        private bool IsAppBarRegistered;
-        private bool IsAppBarPositioned = false;
-        private bool IsInAppBarResize;
+        public string? DisplayDevice;
+        public string? _displayIdentifier;
+        public string? DisplayIdentifier
+        {
+            get
+            {
+                if ( _displayIdentifier is null)
+                {
+                    _displayIdentifier = ScreenConfig?.GenerateUniqueId();
+                }
+                return _displayIdentifier;
+            }
+            set
+            {
+                _displayIdentifier = value;
+            }
+        }
+        private Rect _bounds;
+        public Rect Bounds {
+            get {
+                return _bounds;
+            }
+            set {
+                _bounds = value;
+            }
+        }
 
         static Banner()
         {
@@ -65,8 +97,6 @@ namespace DesktopBanner
             showTimer.Tick += (s, _) => Window_Show();
 
 
-
-        
             BannerColors = new()
             {
                 {"UNCATEGORIZED", "#008000"}
@@ -77,399 +107,88 @@ namespace DesktopBanner
                 {"UNCATEGORIZED", "Uncategorized"}
             };
 
-            bool checkRegPath = Reg.KeyExists(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\");
+            bool checkRegPath = Reg.KeyExists(REG_ROOT);
             if (checkRegPath)
             {
-                String? LeftBannerLabel = Reg.GetString(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "LeftDisplay");
-                String? RightBannerLabel = Reg.GetString(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "RightDisplay");
-                BannerLabel = Reg.GetString(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "BannerLabel");
-                //BannerType 1 is Rollup banner (hides on mouseover, BannerType 2 is static banner 
-                if (Reg.PropertyExists(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "BannerType"))
-                {
-                    BannerType = (int?)Reg.GetInt(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "BannerType");
-                }
-                if (ShowOnBottom && BannerType == 2)
-                {
-                    DockMode = AppBarDockMode.Bottom;
-                }
-                else
-                {
-                    DockMode = AppBarDockMode.Top;
-                }
-                Double BannerOpacityLvl = Reg.GetDouble(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "BannerOpacity");
-                if (BannerOpacityLvl == -1)
-                {
-                    BannerOpacityLvl = REGULAR_OPACITY;
-                }
-                REGULAR_OPACITY = (BannerOpacityLvl) / 100.0;
-                Opacity = REGULAR_OPACITY;
-                HostName = Utils.GetHostName();
-                CurrentUser = Utils.GetCurrentUser();
 
-                LeftDisplay = LeftBannerLabel ?? "";
-                LeftDisplay = LeftBannerLabel.Replace("@HOST", HostName);
-                LeftDisplay = LeftBannerLabel.Replace("@USER", CurrentUser);
-               
-                RightDisplay = RightBannerLabel ?? "";
-                RightDisplay = RightBannerLabel.Replace("@HOST", HostName);
-                RightDisplay = RightBannerLabel.Replace("@USER", CurrentUser);
-                
-                lblLeftDisplay.Content = LeftDisplay;
-                lblRightDisplay.Content = RightDisplay;
-                lblBannerLabel.Content = BannerLabel;
+                double OpacityLvl = Reg.GetDouble(REG_ROOT, "Opacity");
+                if (OpacityLvl == -1)
+                {
+                    OpacityLvl = RegularOpacity;
+                }
+                //Set the defauilt opacity state, this is the value that the banner returns to after any animations or effects which may change the opacity
+                RegularOpacity = (OpacityLvl) / 100.0;
+
+                //Set the banners opacity
+                Opacity = RegularOpacity;
+
+                PrepareBannerText();
             }
 
 
         }
-        public void Unregister() {
-            if (IsAppBarRegistered)
+        private Dictionary<string, string> GetTokenMap()
+        {
+            return new()
             {
-                var abd = GetAppBarData();
-                SHAppBarMessage(ABM.REMOVE, ref abd);
-                IsAppBarRegistered = false;
-                IsAppBarPositioned = false;
+                { "@USER", Utils.GetCurrentUser()},
+                { "@HOST", Utils.GetHostName()}
+
+            };
+        }
+        private string? PerformTokenSubstitution(string? text, Dictionary<string, string> tokenMap)
+        {
+            if (null != text)
+            {
+                foreach (KeyValuePair<string, string> token in tokenMap)
+                {
+                    text = text.Replace(token.Key, token.Value);
+                }
             }
+            else
+            {
+                text = "";
+            }
+            return text;
+        }
+        private void PrepareBannerText()
+        {
+            LeftDisplay = Reg.GetString(REG_ROOT, "LeftDisplay");
+            RightDisplay = Reg.GetString(REG_ROOT, "RightDisplay");
+            CenterDisplay = Reg.GetString(REG_ROOT, "CenterDisplay");
+
+            //Get the dictionary containing value which will be used for any token substitutions in the banner labels, e.g. @USER would become the current users username
+            Dictionary<string, string> tokenMap = GetTokenMap();
+            lblLeftDisplay.Content = PerformTokenSubstitution(LeftDisplay, tokenMap);
+            lblCenterDisplay.Content = PerformTokenSubstitution(CenterDisplay, tokenMap);
+            lblRightDisplay.Content = PerformTokenSubstitution(RightDisplay, tokenMap);
         }
 
-        
+        private void Window_Activated(object sender, EventArgs e)
+        {
+        }
         private void Window_Deactivated(object sender, EventArgs e)
         {
             Window window = (Window)sender;
             window.Topmost = true;
         }
 
-        private void Window_Show()
-        {
-            if (BannerType == 1)
-            {
-                if (Visibility == Visibility.Hidden)
-                {
-                    Point mousePos = GetCursorPosition();
-                    if (!ShowOnBottom)
-                    {
-                        if (mousePos.Y <= Bounds.Bottom)
-                        {
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        if (mousePos.Y >= Bounds.Top)
-                        {
-                            return;
-                        }
-                    }
-                    Visibility = Visibility.Visible;
-                    var anim = new DoubleAnimation(REGULAR_OPACITY, (Duration)TimeSpan.FromSeconds(.5), FillBehavior.Stop);
-                    anim.Completed += (s, _) =>
-                    {
-                        showTimer.Stop();
-                        BeginAnimation(Window.HeightProperty, null);
-                    };
-                    BeginAnimation(UIElement.OpacityProperty, anim);
-                }
-            }
-        }
         private void Window_MouseEnter(object sender, EventArgs e)
         {
-            if (BannerType == 1)
-            {
-                //stop expanding
-                var anim = new DoubleAnimation(REGULAR_OPACITY, (Duration)TimeSpan.FromSeconds(.5), FillBehavior.Stop);
-                anim.Completed += (s, _) =>
-                {
-                    Hide();
-                };
-                BeginAnimation(UIElement.OpacityProperty, anim);
-                showTimer.Start();
-            }
         }
-
-        private void Window_Activated(object sender, EventArgs e)
+        private void Window_Show()
         {
-
-
+           
         }
 
-        public AppBarDockMode DockMode
+        //Helper function to set the positional bounds using display device values 
+        public void SetBannerBounds(BannerScreenConfig config)
         {
-            get { return (AppBarDockMode)GetValue(DockModeProperty); }
-            set { SetValue(DockModeProperty, value); }
+            ScreenConfig = config;
+            Top = ShowOnBottom ? (ScreenConfig.WorkingArea.Bottom) - Height : ScreenConfig.ScaledScreen.Top;
+            Left = ScreenConfig.ScaledScreen.Left;
+            Width = ScreenConfig.ScaledScreen.Width;
+            Bounds = new Rect(Left, Top, Width, Height);
         }
-        
-        public static readonly DependencyProperty DockModeProperty =
-            DependencyProperty.Register("DockMode", typeof(AppBarDockMode), typeof(Banner),
-                new FrameworkPropertyMetadata(AppBarDockMode.Top, DockLocation_Changed));
-        
-        public MonitorInfo Monitor
-        {
-            get { return (MonitorInfo)GetValue(MonitorProperty); }
-            set { SetValue(MonitorProperty, value); }
-        }
-
-        public static readonly DependencyProperty MonitorProperty =
-            DependencyProperty.Register("Monitor", typeof(MonitorInfo), typeof(Banner),
-                new FrameworkPropertyMetadata(null, DockLocation_Changed));
-
-        public int DockedWidthOrHeight
-        {
-            get { return (int)GetValue(DockedWidthOrHeightProperty); }
-            set { SetValue(DockedWidthOrHeightProperty, value); }
-        }
-
-        public static readonly DependencyProperty DockedWidthOrHeightProperty =
-            DependencyProperty.Register("DockedWidthOrHeight", typeof(int), typeof(Banner),
-                new FrameworkPropertyMetadata(BANNER_HEIGHT, DockLocation_Changed, DockedWidthOrHeight_Coerce));
-
-        private static object DockedWidthOrHeight_Coerce(DependencyObject d, object baseValue)
-        {
-            var @this = (Banner)d;
-            var newValue = (int)baseValue;
-
-/*            switch (@this.DockMode)
-            {
-                case AppBarDockMode.Left:
-                case AppBarDockMode.Right:
-                    return BoundIntToDouble(newValue, @this.MinWidth, @this.MaxWidth);
-
-                case AppBarDockMode.Top:
-                case AppBarDockMode.Bottom:
-                    return BoundIntToDouble(newValue, @this.MinHeight, @this.MaxHeight);
-
-                default: throw new NotSupportedException();
-            }*/
-
-            return @this.DockMode switch { 
-
-                AppBarDockMode.Left  => BoundIntToDouble(newValue, @this.MinWidth, @this.MaxWidth),
-                AppBarDockMode.Right => BoundIntToDouble(newValue, @this.MinWidth, @this.MaxWidth),
-
-                AppBarDockMode.Top    => BoundIntToDouble(newValue, @this.MinHeight, @this.MaxHeight),
-                AppBarDockMode.Bottom => BoundIntToDouble(newValue, @this.MinHeight, @this.MaxHeight),
-
-                _                     => throw new NotSupportedException()
-            };
-        }
-    
-    private static int BoundIntToDouble(int value, double min, double max)
-        {
-            if (min > value)
-            {
-                return (int)Math.Ceiling(min);
-            }
-            if (max < value)
-            {
-                return (int)Math.Floor(max);
-            }
-
-            return value;
-        }
-
-        private static void MinMaxHeightWidth_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            d.CoerceValue(DockedWidthOrHeightProperty);
-        }
-
-        private static void DockLocation_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var @this = (Banner)d;
-
-            if (@this.IsAppBarRegistered)
-            {
-                @this.OnDockLocationChanged();
-            }
-        }
-
-        protected override void OnDpiChanged(DpiScale oldDpi, DpiScale newDpi)
-        {
-            base.OnDpiChanged(oldDpi, newDpi);
-
-            OnDockLocationChanged();
-        }
-
-        protected override void OnSourceInitialized(EventArgs e)
-        {
-            if (BannerType == 2)
-            {
-                base.OnSourceInitialized(e);
-
-                // add the hook, setup the appbar
-                var source = (HwndSource)PresentationSource.FromVisual(this);
-
-                if (!ShowInTaskbar)
-                {
-                    var exstyle = (ulong)GetWindowLongPtr(source.Handle, GWL_EXSTYLE);
-                    exstyle |= (ulong)((uint)WS_EX_TOOLWINDOW);
-                    SetWindowLongPtr(source.Handle, GWL_EXSTYLE, unchecked((IntPtr)exstyle));
-                }
-
-                source.AddHook(WndProc);
-
-                var abd = GetAppBarData();
-                SHAppBarMessage(ABM.NEW, ref abd);
-
-                // set our initial location
-                this.IsAppBarRegistered = true;
-                OnDockLocationChanged();
-            }
-        }
-
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            base.OnClosing(e);
-
-            if (e.Cancel)
-            {
-                return;
-            }
-            if (BannerType == 2)
-            {
-                if (IsAppBarRegistered)
-                {
-                    var abd = GetAppBarData();
-                    SHAppBarMessage(ABM.REMOVE, ref abd);
-                    IsAppBarRegistered = false;
-                }
-            }
-        }
-
-        private int WpfDimensionToDesktop(double dim)
-        {
-            var dpi = VisualTreeHelper.GetDpi(this);
-
-            return (int)Math.Ceiling(dim * dpi.PixelsPerDip);
-        }
-
-        private double DesktopDimensionToWpf(double dim)
-        {
-            var dpi = VisualTreeHelper.GetDpi(this);
-
-            return dim / dpi.PixelsPerDip;
-        }
-
-        private void OnDockLocationChanged()
-        {
-            if (IsInAppBarResize)
-            {
-                return;
-            }
-            if (!IsAppBarPositioned)
-            {
-                var abd = GetAppBarData();
-                abd.rc = (RECT)Display.Bounds;
-
-                SHAppBarMessage(ABM.QUERYPOS, ref abd);
-
-                var dockedWidthOrHeightInDesktopPixels = WpfDimensionToDesktop(DockedWidthOrHeight);
-                if ((abd.rc.Height > 300) || (abd.rc.Height == 0))
-                {
-                    switch (DockMode)
-                    {
-                        case AppBarDockMode.Top:
-                            abd.rc.bottom = abd.rc.top + dockedWidthOrHeightInDesktopPixels;
-                            break;
-                        case AppBarDockMode.Bottom:
-                            abd.rc.top = (int)(Display.WorkingArea.Bottom - dockedWidthOrHeightInDesktopPixels);
-                            break;
-                        case AppBarDockMode.Left:
-                            abd.rc.right = abd.rc.left + dockedWidthOrHeightInDesktopPixels;
-                            break;
-                        case AppBarDockMode.Right:
-                            abd.rc.left = abd.rc.right - dockedWidthOrHeightInDesktopPixels;
-                            break;
-                        default: throw new NotSupportedException();
-                    }
-                }
-
-                SHAppBarMessage(ABM.SETPOS, ref abd);
-                IsInAppBarResize = true;
-                try
-                {
-                    WindowBounds = (Rect)abd.rc;
-                }
-                finally
-                {
-                    IsInAppBarResize = false;
-                }
-
-                IsAppBarPositioned = true;
-            }
-
-        }
-
-        private APPBARDATA GetAppBarData()
-        {
-            return new APPBARDATA()
-            {
-                cbSize = Marshal.SizeOf(typeof(APPBARDATA)),
-                hWnd = new WindowInteropHelper(this).Handle,
-                uCallbackMessage = AppBarMessageId,
-                uEdge = (int)DockMode
-            };
-        }
-
-        private static int _AppBarMessageId;
-        public static int AppBarMessageId
-        {
-            get
-            {
-                if (_AppBarMessageId == 0)
-                {
-                    _AppBarMessageId = RegisterWindowMessage("AppBarMessage_EEDFB5206FC3");
-                }
-
-                return _AppBarMessageId;
-            }
-        }
-
-        public IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
-        {
-            if (msg == WM_WINDOWPOSCHANGING && !IsInAppBarResize)
-            {
-                var wp = Marshal.PtrToStructure<WINDOWPOS>(lParam);
-                wp.flags |= SWP_NOMOVE | SWP_NOSIZE;
-                Marshal.StructureToPtr(wp, lParam, false);
-            }
-            else if (msg == WM_ACTIVATE)
-            {
-                var abd = GetAppBarData();
-                uint hresult = SHAppBarMessage(ABM.ACTIVATE, ref abd);
-            }
-            else if (msg == WM_WINDOWPOSCHANGED)
-            {
-                var abd = GetAppBarData();
-                uint hresult = SHAppBarMessage(ABM.WINDOWPOSCHANGED, ref abd);
-            }
-            else if (msg == AppBarMessageId)
-            {
-                switch ((ABN)(int)wParam)
-                {
-                    case ABN.POSCHANGED:
-                        OnDockLocationChanged();
-                        handled = true;
-                        break;
-                }
-            }
-
-            return IntPtr.Zero;
-        }
-
-        private Rect WindowBounds
-        {
-            set
-            {
-                this.Left = DesktopDimensionToWpf(value.Left);
-                this.Top = DesktopDimensionToWpf(value.Top);
-                this.Width = DesktopDimensionToWpf(value.Width);
-                this.Height = DesktopDimensionToWpf(value.Height);
-            }
-        }
-    }
-    public enum AppBarDockMode
-    {
-        Left = 0,
-        Top,
-        Right,
-        Bottom
     }
 }

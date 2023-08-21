@@ -52,7 +52,7 @@ namespace DesktopBanner
 
         public override string ToString() => DeviceId;
 
-        public override bool Equals(object obj) => Equals(obj as MonitorInfo);
+        public override bool Equals(object obj) => Equals((MonitorInfo)obj);
 
         public override int GetHashCode() => DeviceId.GetHashCode();
 

@@ -12,16 +12,29 @@ namespace DesktopBanner
     /// </summary>
     public partial class App : Application
     {
-        public Dictionary<String, Banner> BannerList = new Dictionary<String, Banner>();
-        public BannerManager WDM = new BannerManager();
+        public Dictionary<string, Banner> BannerList = new();
+        public BannerManager WDM = new();
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            Boolean exists = Reg.PropertyExists(@"HKLM\SOFTWARE\DesktopBanner","BannerLabel");
+            DisplayMode displayMode;
+            //DisplayMode 1 is Rollup banner (hides on mouseover, DisplayMode 2 is static banner 
+            if (Reg.PropertyExists(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "DisplayMode"))
+            {
+                //If DisplayMode is null set to Overlay style
+                displayMode = (DisplayMode)((int?)Reg.GetInt(@"HKLM\SOFTWARE\DesktopBanner\", "DisplayMode") ?? 0);
+            }
+            else {
+                displayMode = DisplayMode.Overlay;
+            }            
+
+            //If at least the CenterDisplay value is set then proceed
+            bool exists = Reg.PropertyExists(@"HKLM\SOFTWARE\DesktopBanner","CenterDisplay");
             base.OnStartup(e);
+            //Start listening for Display events, e.g. monitor plugged in or removed, dpi etc
             SystemEvents.DisplaySettingsChanged += new EventHandler(SystemEvents_DisplaySettingsChanged);
-            
-            WDM.Init();
+
+            WDM.Init(displayMode);
 
         }
         void App_Exit(object sender, ExitEventArgs e)
@@ -30,6 +43,7 @@ namespace DesktopBanner
         }
         protected override void OnExit(ExitEventArgs e)
         {
+            //Clean up DisplaySettingsChanged listener on exit
             Microsoft.Win32.SystemEvents.DisplaySettingsChanged -= new EventHandler(SystemEvents_DisplaySettingsChanged);
             base.OnExit(e);
 

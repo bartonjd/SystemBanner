@@ -49,7 +49,7 @@ namespace DesktopBanner
             if (IntPtr.Size == 4)
             {
                 // use SetWindowLong
-                Int32 tempResult = IntSetWindowLong(hWnd, nIndex, IntPtrToInt32(dwNewLong));
+                int tempResult = IntSetWindowLong(hWnd, nIndex, IntPtrToInt32(dwNewLong));
                 error = Marshal.GetLastWin32Error();
                 result = new IntPtr(tempResult);
             }
@@ -72,7 +72,7 @@ namespace DesktopBanner
         private static extern IntPtr IntSetWindowLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
 
         [DllImport("user32.dll", EntryPoint = "SetWindowLong", SetLastError = true)]
-        private static extern Int32 IntSetWindowLong(IntPtr hWnd, int nIndex, Int32 dwNewLong);
+        private static extern int IntSetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
 
         private static int IntPtrToInt32(IntPtr intPtr)
         {

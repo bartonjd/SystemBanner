@@ -61,8 +61,8 @@ namespace DesktopBanner
             ABM_GETSTATE,
             ABM_GETTASKBARPOS,
             ABM_ACTIVATE,
-            ABM_GETAUTOHIDEBAR,
-            ABM_SETAUTOHIDEBAR,
+            ABM_GETRolloverBAR,
+            ABM_SETRolloverBAR,
             ABM_WINDOWPOSCHANGED,
             ABM_SETSTATE
         }

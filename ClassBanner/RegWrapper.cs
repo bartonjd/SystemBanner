@@ -1,22 +1,23 @@
 ﻿using System;
 using Microsoft.Win32;
 using System.Text.RegularExpressions;
+using System.Collections.Generic;
 
 namespace DesktopBanner
 {
     public class Reg
     {
-        static public Int32? GetInt(String Path, String Property)
+        static public int? GetInt(string Path, string Property)
         {
             Path = FormatPath(Path);
-            Int32? value = (Int32?) Registry.GetValue(Path,Property,-1);
+            int? value = (int?) Registry.GetValue(Path,Property,-1);
             if (value == -1)
             {
                 value = null;
             }
             return value;
         }
-        static public Double GetDouble(String Path, String Property)
+        static public double GetDouble(string Path, string Property)
         {
             Path = FormatPath(Path);
             var value = Registry.GetValue(Path, Property, -1);
@@ -24,15 +25,28 @@ namespace DesktopBanner
             {
                 value = -1;
             }
-            return Double.Parse((String)value);
+            return double.Parse((string)value);
         }
-        static public String? GetString(String Path, String Property)
+        static public string? GetString(string Path, string Property)
         {
             Path = FormatPath(Path);
-            String? value = (string?)Registry.GetValue(Path, Property, "");
+            var value = Registry.GetValue(Path, Property, "");
+            if (value is not null)
+            {
+                return (string)value;
+            }
+            else
+            {
+                return "";
+            }
+        }
+        static public dynamic? GetValue(string Path, string Property)
+        {
+            Path = FormatPath(Path);
+            var value = Registry.GetValue(Path, Property, "");
             return value;
         }
-        static public Boolean PropertyExists(String Path, String Property) 
+        static public bool PropertyExists(string Path, string Property)
         {
             Path = FormatPath(Path);
             var value = Registry.GetValue(Path, Property, null);
@@ -43,13 +57,25 @@ namespace DesktopBanner
             }
             return true;
         }
-        static private String GetHiveName(String Path)
+        static public Dictionary<string, dynamic> GetProperties(string Path, string[] properties)
+        {
+            Dictionary<string, dynamic> results = new();
+
+            foreach (string property in properties)
+            {
+                var prop = GetValue(Path, property);
+                results.Add(property, prop ?? "");
+            }
+
+            return results;
+        }
+        static private string GetHiveName(string Path)
         {
             Path = Path.Replace(":", "");
             //Get the hivename (string before the first \)
             Regex whichHiveRegEx = new(@"(\w+)(?=\\)");
             Match match = whichHiveRegEx.Match(Path);
-            String hiveName = "HKEY_LOCAL_MACHINE";
+            string hiveName = "HKEY_LOCAL_MACHINE";
             //TODO: Implement a result class like: https://www.youtube.com/watch?v=a1ye9eGTB98 rather than using a default
 
             if (match.Success)
@@ -86,81 +112,73 @@ namespace DesktopBanner
             return hiveName;
         }
 
-        static private RegistryKey GetHive(String Path)
+        static private RegistryKey GetHive(string Path)
         {
-            RegistryKey hive;
-
-            switch (GetHiveName(Path))
+            return GetHiveName(Path) switch
             {
-                case "HKEY_LOCAL_MACHINE":
-                    hive = Registry.LocalMachine;
-                    break;
-                case "HKEY_CURRENT_USER":
-                    hive = Registry.CurrentUser;
-                    break;
-                case "HKEY_CLASSES_ROOT":
-                    hive = Registry.ClassesRoot;
-                    break;
-                case "HKEY_USERS":
-                    hive = Registry.Users;
-                    break;
-                case "HKEY_CURRENT_CONFIG":
-                    hive = Registry.CurrentConfig;
-                    break;
-                case "HKEY_PERFORMANCE_DATA":
-                    hive = Registry.PerformanceData;
-                    break;
-                default:
-                    //If string doesn't match assume HKLM was intended
-                    hive = Registry.LocalMachine;
-                    break;
-            }
-            return hive;
+                "HKEY_LOCAL_MACHINE" => Registry.LocalMachine,
+                "HKEY_CURRENT_USER" => Registry.CurrentUser,
+                "HKEY_CLASSES_ROOT" => Registry.ClassesRoot,
+                "HKEY_USERS" => Registry.Users,
+                "HKEY_CURRENT_CONFIG" => Registry.CurrentConfig,
+                "HKEY_PERFORMANCE_DATA" => Registry.PerformanceData,
+                _ => Registry.LocalMachine, //If string doesn't match assume HKLM was intended
+            };
         }
-        static public Boolean KeyExists (String Path)
+        static public bool KeyExists (string Path)
         {
-            String relativePath = RelativizePath(FormatPath(Path));
-            Boolean keyExists = (null != GetHive(Path).OpenSubKey(relativePath));
+            string relativePath = RelativizePath(FormatPath(Path));
+            bool keyExists = (null != GetHive(Path).OpenSubKey(relativePath));
             return keyExists;
         }
-        static private String RelativizePath(String Path)
+        static private string RelativizePath(string Path)
         {
             Path = Path.Replace(GetHiveName(Path) + @"\", "");
             return Path;
         }
-        static private String FormatPath(String Path)
+        static private string FormatPath(string Path)
         {
             //Cleanup path if user used colon, e.g. HKLM:\SOFTWARE becomes HKLM\SOFTWARE
             Path = Path.Replace(":", "");
             //Ensure there are no double \ after concatenation or @ escaping
             Path = Path.Replace(@"\\", @"\");
-            String hiveName = "";
+            string hiveName;
 
             //Get the hivename (string before the first \)
             Regex whichHiveRegEx = new(@"(\w+)(?=\\)");
             Match match = whichHiveRegEx.Match(Path);
 
             if (match.Success)
-            { 
+            {
                 hiveName = match.Groups[1].Value;
                 Path = Path.Replace(hiveName, GetHiveName(Path));
             }
             return Path;
         }
-        static  public void NewKey(String Path, String KeyName = "") 
+        static public void NewKey(string Path, string KeyName)
         {
-            //Can accept a path or a path and keyname for ease of use.
-            if (!KeyExists(Path))
+            string fullPath = ($"{Path}\\{KeyName}").Replace(@"\\", @"\");
+            var hive = GetHive(Path);
+            if (!KeyExists(fullPath))
             {
                 if (KeyName != "")
                 {
                     //Ensure keyname is at the end of the path if it was provided
-                    Path = Path + @"\" + KeyName;
                     Path = RelativizePath(FormatPath(Path));
                 }
-                GetHive(Path).CreateSubKey(KeyName);
+                var key = hive.OpenSubKey(Path, true);
+                if (key is not null)
+                {
+                    key.CreateSubKey(KeyName);
+                }
+                else
+                {
+                    throw new Exception("No such key");
+                }
             }
         }
+        // Future Enhancement, flesh out these functions 
+        /*
         static public void SetProperty(String Path,String Property, String Value)
         {
 
@@ -177,5 +195,6 @@ namespace DesktopBanner
         {
 
         }
+        */
     }
 }

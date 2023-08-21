@@ -7,13 +7,15 @@ namespace DesktopBanner
 {
     public class BannerManager
     {
-        public Dictionary<String, Banner> BannerList = new ();
-        public bool ShowOnBottom = true;
-        public Dictionary<String, Display> Displays = new ();
-        public void Init()
+        public Dictionary<string, Banner> BannerList = new ();
+        public bool ShowOnBottom;
+        public Dictionary<string, Display> Displays = new ();
+        private DisplayMode DefaultDisplayMode;
+        public void Init(DisplayMode defaultDisplayMode = DisplayMode.Overlay)
         {
 
             bool ShowOnBottom = false;
+            DefaultDisplayMode = defaultDisplayMode;
             //string ShowBottomBanner = Utils.GetRegValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "ShowBottomBanner");
             //////
             string ShowBottomBanner = "1";
@@ -35,7 +37,7 @@ namespace DesktopBanner
             }
             //Refresh();
         }
-        public void Add(String DisplayId, Banner mw)
+        public void Add(string DisplayId, Banner mw)
         {
             Display? DisplayInfo;
             if (Displays.ContainsKey(DisplayId))
@@ -57,7 +59,7 @@ namespace DesktopBanner
             
 
         }
-        public void Delete(String DisplayId)
+        public void Delete(string DisplayId)
         {
             if (Displays.ContainsKey(DisplayId))
             {
@@ -68,65 +70,66 @@ namespace DesktopBanner
         {
             if (d.TopBanner != null)
             {
-                d.TopBanner.Unregister();
+                UnregisterAppBar(d.TopBanner);
                 d.TopBanner.Close();
             }
             if (d.BottomBanner != null)
             {
-                d.BottomBanner.Unregister();
+                UnregisterAppBar(d.BottomBanner);
                 d.BottomBanner.Close();
             }
             Displays.Remove(d.DeviceId);
         }
-        private static Rect GetScaledScreen(Screen s)
-        {
-            Rect r = s.WorkingArea;
-            Rect scaledScreen = new (
-                (r.Left / s.ScaleFactor),
-                (r.Top / s.ScaleFactor),
-                (r.Width / s.ScaleFactor),
-                (r.Height / s.ScaleFactor)
-            );
-            return scaledScreen;
+
+        private void UnregisterAppBar(Banner b) {
+            if ((b.DisplayMode == DisplayMode.Static) && (b is StaticBanner)) {
+                StaticBanner sb = (StaticBanner)b;
+                sb.Unregister();
+            }
         }
-        public static String GenerateUniqueId(Screen s) 
+        public static string GenerateUniqueId(Screen s) 
         {
-            Rect scaledScreen = GetScaledScreen(s);
-            String UniqueId = scaledScreen.ToString() + "_" + s.DeviceName;
+            Rect scaledScreen = Display.GetScaledScreen(s);
+            string UniqueId = scaledScreen.ToString() + "_" + s.DeviceName;
             return UniqueId;
         }
+
         private void CreateBanner(Screen s, bool ShowOnBottom = false)
         {
-            var banner = new Banner(ShowOnBottom);
-            Rect r = s.WorkingArea;
-            Rect scaledScreen = Display.GetScaledScreen(s);
+            Banner banner;
+            //Based on the DisplayMode set in the registry, instantiate the correct banner type
+            switch (DefaultDisplayMode) {
+                case DisplayMode.Overlay:
+                    banner = new Banner(ShowOnBottom);
+                    break;
+                case DisplayMode.Rollover:
+                    banner = new RolloverBanner(ShowOnBottom);
+                    break;
+                case DisplayMode.Static:
+                    banner = new StaticBanner(ShowOnBottom);
+                    break;
+                default:
+                    banner = new Banner(ShowOnBottom);
+                    break;
+            };
 
-            if (ShowOnBottom)
-            {
-                banner.Top = (scaledScreen.Bottom) - banner.Height;
-            }
-            else
-            {
-                banner.Top = scaledScreen.Top;
-            }
-            banner.Left = scaledScreen.Left;
-            banner.Width = scaledScreen.Width;
-            banner.Bounds = new Rect(banner.Left, banner.Top, banner.Width, banner.Height);
-            banner.ScaledScreen = scaledScreen;
-            banner.DisplayDevice = s.DeviceName;
+
+            BannerScreenConfig config = new(s);
+            banner.SetBannerBounds(config);
             banner.Display = s;
-            var displayId = scaledScreen.ToString() + "_" + s.DeviceName;
-            banner.DisplayIdentifier = displayId;
-            Add(displayId, banner);
+
+            //Add the banner to the manager
+            //TODO: Get rid of the nullability warning
+            Add(banner.DisplayIdentifier, banner);
             banner.Show();
             banner.Topmost = true;
         }
         public void Refresh()
         {
-            Dictionary<String, Screen?> AllScreensList = new();
+            Dictionary<string, Screen?> AllScreensList = new();
             foreach (var s in Screen.AllScreens)
             {
-                String ScreenId = GenerateUniqueId(s);
+                string ScreenId = GenerateUniqueId(s);
                 AllScreensList.Add(ScreenId, s);
                 if (!Displays.ContainsKey(ScreenId))
                 {
@@ -138,26 +141,13 @@ namespace DesktopBanner
                 }
             }
 
-/*            int? bannerType;
-            if (Reg.PropertyExists(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "BannerType"))
-            {
-                bannerType = (int?)Reg.GetInt(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "BannerType");
-            }
-            else {
-                bannerType = 1;
-            }*/
-
             foreach (var d in Displays)
             {
-                String displayId = d.Key;
                 if (!AllScreensList.ContainsKey(d.Key))
                 {
-
                     DisposeDisplay(d.Value);
                 }
             }
-
         }
-
     }
 }

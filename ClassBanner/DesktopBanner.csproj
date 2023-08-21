@@ -9,6 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Banner2xamlcs.txt" />
+    <None Remove="Resources\Banner2xamlcs.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="WpfScreenHelper" Version="2.1.0" />
   </ItemGroup>
 

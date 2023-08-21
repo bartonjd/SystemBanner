@@ -162,8 +162,8 @@ namespace DesktopBanner
             GETSTATE,
             GETTASKBARPOS,
             ACTIVATE,
-            GETAUTOHIDEBAR,
-            SETAUTOHIDEBAR,
+            GETRolloverBAR,
+            SETRolloverBAR,
             WINDOWPOSCHANGED,
             SETSTATE
         }
