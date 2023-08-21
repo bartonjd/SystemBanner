@@ -12,7 +12,12 @@ namespace DesktopBanner
     /// </summary>
     public partial class App : Application
     {
+        //Configurable
+        // Base registry path, should end with trailing \
+        public const string REGISTRYROOT = @"HKLM\SOFTWARE\DesktopBanner\";
+
         public Dictionary<string, Banner> BannerList = new();
+        //Instantiate a new BannerManager, this creates and destroys banners, keeps track of open banners and adjusts how many are displayed when a monitor/display is added or removed
         public BannerManager WDM = new();
 
         protected override void OnStartup(StartupEventArgs e)
@@ -35,12 +40,9 @@ namespace DesktopBanner
             SystemEvents.DisplaySettingsChanged += new EventHandler(SystemEvents_DisplaySettingsChanged);
 
             WDM.Init(displayMode);
-
         }
-        void App_Exit(object sender, ExitEventArgs e)
-        {
 
-        }
+
         protected override void OnExit(ExitEventArgs e)
         {
             //Clean up DisplaySettingsChanged listener on exit
@@ -49,9 +51,6 @@ namespace DesktopBanner
 
         }
 
-
-        //closing
-        //
 
         private void SystemEvents_DisplaySettingsChanged(object? sender,EventArgs e)
         {

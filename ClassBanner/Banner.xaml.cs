@@ -10,6 +10,7 @@ using System.Windows.Interop;
 
 
 /// <summary>
+/// Base class for banner
 /// Interaction logic for Banner.xaml
 /// </summary>
 
@@ -19,7 +20,6 @@ using static DesktopBanner.NativeMethods;
 
 namespace DesktopBanner
 {
-    //using System.Windows.Navigation;
 
     public enum DisplayMode
     {
@@ -33,11 +33,11 @@ namespace DesktopBanner
     {
         public bool ShowOnBottom { get; set; }
         public string? BannerPosition { get; set; }
-        private DispatcherTimer showTimer;
+
         public DisplayMode DisplayMode = DesktopBanner.DisplayMode.Overlay;
         protected const int BANNER_HEIGHT = 23;
-        // Base registry path, should end with trailing \
-        private const string REG_ROOT = @"HKLM\SOFTWARE\DesktopBanner\";
+        private const string REGISTRYROOT = App.REGISTRYROOT;
+        //The default opacity of the window before and after animations, defaults to 100% (1.0) if not set by the user
         protected double RegularOpacity = 1.0;
         private Dictionary<string, string> BannerColors;
         private Dictionary<string, string> BannerLabels;
@@ -45,6 +45,7 @@ namespace DesktopBanner
 
         public string BannerColor = "#008000";
         public string TextColor = "#000000";
+        //Object representing the screen on which the banner is to be displayed on 
         public Screen? Display;
         private string? LeftDisplay = "";
         public string? CenterDisplay = "";
@@ -89,12 +90,10 @@ namespace DesktopBanner
         public Banner(bool ShowOnBottom = false)
         {
             InitializeComponent();
+            //Bind WPF Banner to class values 
             DataContext = this;
             this.ShowOnBottom = ShowOnBottom;
             BannerPosition = (ShowOnBottom) ? "bottom" : "top";
-            showTimer = new DispatcherTimer();
-            showTimer.Interval = TimeSpan.FromSeconds(3);
-            showTimer.Tick += (s, _) => Window_Show();
 
 
             BannerColors = new()
@@ -107,11 +106,10 @@ namespace DesktopBanner
                 {"UNCATEGORIZED", "Uncategorized"}
             };
 
-            bool checkRegPath = Reg.KeyExists(REG_ROOT);
+            bool checkRegPath = Reg.KeyExists(REGISTRYROOT);
             if (checkRegPath)
             {
-
-                double OpacityLvl = Reg.GetDouble(REG_ROOT, "Opacity");
+                double OpacityLvl = Reg.GetDouble(REGISTRYROOT, "Opacity");
                 if (OpacityLvl == -1)
                 {
                     OpacityLvl = RegularOpacity;
@@ -122,6 +120,7 @@ namespace DesktopBanner
                 //Set the banners opacity
                 Opacity = RegularOpacity;
 
+                //SUbstitute tokens, check for nulls and set Left, Center and Right banner display labels
                 PrepareBannerText();
             }
 
@@ -153,9 +152,9 @@ namespace DesktopBanner
         }
         private void PrepareBannerText()
         {
-            LeftDisplay = Reg.GetString(REG_ROOT, "LeftDisplay");
-            RightDisplay = Reg.GetString(REG_ROOT, "RightDisplay");
-            CenterDisplay = Reg.GetString(REG_ROOT, "CenterDisplay");
+            LeftDisplay = Reg.GetString(REGISTRYROOT, "LeftDisplay");
+            RightDisplay = Reg.GetString(REGISTRYROOT, "RightDisplay");
+            CenterDisplay = Reg.GetString(REGISTRYROOT, "CenterDisplay");
 
             //Get the dictionary containing value which will be used for any token substitutions in the banner labels, e.g. @USER would become the current users username
             Dictionary<string, string> tokenMap = GetTokenMap();
@@ -164,16 +163,16 @@ namespace DesktopBanner
             lblRightDisplay.Content = PerformTokenSubstitution(RightDisplay, tokenMap);
         }
 
-        private void Window_Activated(object sender, EventArgs e)
+        protected void Window_Activated(object sender, EventArgs e)
         {
         }
-        private void Window_Deactivated(object sender, EventArgs e)
+        protected void Window_Deactivated(object sender, EventArgs e)
         {
             Window window = (Window)sender;
             window.Topmost = true;
         }
 
-        private void Window_MouseEnter(object sender, EventArgs e)
+        protected void Window_MouseEnter(object sender, EventArgs e)
         {
         }
         private void Window_Show()
@@ -185,7 +184,7 @@ namespace DesktopBanner
         public void SetBannerBounds(BannerScreenConfig config)
         {
             ScreenConfig = config;
-            Top = ShowOnBottom ? (ScreenConfig.WorkingArea.Bottom) - Height : ScreenConfig.ScaledScreen.Top;
+            Top = ShowOnBottom ? (ScreenConfig.ScaledScreen.Bottom) - Height : ScreenConfig.ScaledScreen.Top;
             Left = ScreenConfig.ScaledScreen.Left;
             Width = ScreenConfig.ScaledScreen.Width;
             Bounds = new Rect(Left, Top, Width, Height);
