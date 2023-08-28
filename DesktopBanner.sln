@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesktopBanner", "ClassBanne
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E16998FE-F05D-4057-B030-2A6099AB0623}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppBarCleanupHelper", "AppBarCleanupHelper\AppBarCleanupHelper.csproj", "{D4975AD0-6848-4935-818F-4F0DAD8C444A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,6 +19,10 @@ Global
 		{44F58EE6-18CB-4BF9-B71A-C332A70B1826}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{44F58EE6-18CB-4BF9-B71A-C332A70B1826}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{44F58EE6-18CB-4BF9-B71A-C332A70B1826}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4975AD0-6848-4935-818F-4F0DAD8C444A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4975AD0-6848-4935-818F-4F0DAD8C444A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4975AD0-6848-4935-818F-4F0DAD8C444A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4975AD0-6848-4935-818F-4F0DAD8C444A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -2,6 +2,8 @@
 using Microsoft.Win32;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using System.Security.Cryptography.Xml;
+using System.Diagnostics.Eventing.Reader;
 
 namespace DesktopBanner
 {
@@ -10,7 +12,7 @@ namespace DesktopBanner
         static public int? GetInt(string Path, string Property)
         {
             Path = FormatPath(Path);
-            int? value = (int?) Registry.GetValue(Path,Property,-1);
+            int? value = (int?)Registry.GetValue(Path, Property, -1);
             if (value == -1)
             {
                 value = null;
@@ -84,7 +86,7 @@ namespace DesktopBanner
                 hiveName = hiveName.ToUpper();
 
                 //Take the string and find which registry hive it refers to
-               if ((hiveName == "HKEY_LOCAL_MACHINE") || (hiveName == "HKLM"))
+                if ((hiveName == "HKEY_LOCAL_MACHINE") || (hiveName == "HKLM"))
                 {
                     hiveName = "HKEY_LOCAL_MACHINE";
                 }
@@ -96,7 +98,7 @@ namespace DesktopBanner
                 {
                     hiveName = "HKEY_CLASSES_ROOT";
                 }
-                if ((hiveName == "HKEY_USERS") || (hiveName == "HKU")) 
+                if ((hiveName == "HKEY_USERS") || (hiveName == "HKU"))
                 {
                     hiveName = "HKEY_USERS";
                 }
@@ -125,7 +127,7 @@ namespace DesktopBanner
                 _ => Registry.LocalMachine, //If string doesn't match assume HKLM was intended
             };
         }
-        static public bool KeyExists (string Path)
+        static public bool KeyExists(string Path)
         {
             string relativePath = RelativizePath(FormatPath(Path));
             bool keyExists = (null != GetHive(Path).OpenSubKey(relativePath));
@@ -144,6 +146,10 @@ namespace DesktopBanner
             Path = Path.Replace(@"\\", @"\");
             string hiveName;
 
+            //Remove trailing slash if there is one
+            Regex trailingSlash = new(@"\\$");
+            Path = trailingSlash.Replace(Path,"");
+
             //Get the hivename (string before the first \)
             Regex whichHiveRegEx = new(@"(\w+)(?=\\)");
             Match match = whichHiveRegEx.Match(Path);
@@ -155,6 +161,24 @@ namespace DesktopBanner
             }
             return Path;
         }
+        static private string GetParentPath(string Path) {
+            string newPath = FormatPath(Path);
+            string trailingKey = GetTrailingPath(newPath);
+            string parentPath = newPath.Replace(trailingKey, "");
+            return parentPath;
+        }
+        static private string GetTrailingPath(string Path)
+        {
+            //Remove trailing slash if there is one
+            Regex trailingSlash = new(@"\\$");
+            Path = trailingSlash.Replace(Path, "");
+
+            Regex pattern = new(@"(?<=\\)(\w+)((?=[\\]{2}$)|(?=$))");
+            Match match = pattern.Match(Path);
+            //Add more error handling logic here
+            return match.Value;
+        }
+
         static public void NewKey(string Path, string KeyName)
         {
             string fullPath = ($"{Path}\\{KeyName}").Replace(@"\\", @"\");
@@ -177,16 +201,48 @@ namespace DesktopBanner
                 }
             }
         }
+
         // Future Enhancement, flesh out these functions 
         /*
         static public void SetProperty(String Path,String Property, String Value)
         {
 
         }
-        static public void SetProperty(String Path, String Property, Int32 Value)
+        */
+        static public RegistryKey? GetRegistryKey(string Path)
+        {
+            var newPath = FormatPath(Path);
+            bool keyExists = KeyExists(newPath);
+            RegistryKey? key;
+            if (keyExists)
+            {
+                string relativePath = RelativizePath((string)newPath);
+                key = GetHive(Path).OpenSubKey(relativePath, true);
+                return key;
+            }
+            string keyName = GetTrailingPath(newPath);
+            string parentPath = GetParentPath(newPath);
+            NewKey(parentPath, keyName);
+            return GetRegistryKey(newPath);
+        }
+    
+        static public void SetIntProperty(String Path, String Property, Int32 Value)
         {
 
         }
+        static public void SetStringProperty(String Path, String Property, string Value)
+        {
+            using (RegistryKey? key = GetRegistryKey(Path))
+            {
+                {
+                    if (key != null)
+                    {
+                        key.SetValue(Property, Value);
+                    }
+                }
+            }
+        }
+        /*
         static public void DeleteKey(String Path)
         {
 

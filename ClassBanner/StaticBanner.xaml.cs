@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Interop;
 using System.Windows.Media;
 using static DesktopBanner.NativeMethods;
+using static System.Net.Mime.MediaTypeNames;
 
 
 namespace DesktopBanner
@@ -19,6 +20,8 @@ namespace DesktopBanner
     {
 
         new private DisplayMode DisplayMode =  DesktopBanner.DisplayMode.Static;
+        //String used to identify AppBars registered in Windows by this application, this will alos be needed in order to remove the registration
+        private const string APPBAR_UNIQUE_IDENTIFIER = "DesktopBanner_AppBarMessage_ECDFB5206FC2";
         private bool IsAppBarRegistered;
         private bool IsAppBarPositioned = false;
         private bool IsInAppBarResize;
@@ -33,7 +36,7 @@ namespace DesktopBanner
             */
         }
         public StaticBanner(bool ShowOnBottom) : base(ShowOnBottom)
-        { 
+        {
 
             bool checkRegPath = Reg.KeyExists(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\");
             if (checkRegPath)
@@ -49,9 +52,17 @@ namespace DesktopBanner
                     DockMode = AppBarDockMode.Top;
                 }
             }
+            bool checkUserRegPath = Reg.KeyExists(@"HKEY_CURRENT_USER\SOFTWARE\DesktopBanner\");
+            if (!checkUserRegPath)
+            {
+                //Ensure user registration key exists
+                Reg.NewKey(@"HKEY_CURRENT_USER\SOFTWARE\", "DesktopBanner");
+
+
+            }
         }
 
-        public void Unregister() {
+            public void Unregister() {
             if (IsAppBarRegistered)
             {
                 var abd = GetAppBarData();
@@ -188,6 +199,7 @@ namespace DesktopBanner
             // set our initial location
             this.IsAppBarRegistered = true;
             OnDockLocationChanged();
+            SaveAppbarRestoreData();
             
         }
 
@@ -291,12 +303,43 @@ namespace DesktopBanner
             {
                 if (_AppBarMessageId == 0)
                 {
-                    _AppBarMessageId = RegisterWindowMessage("AppBarMessage_EEDFB5206FC3");
+                    _AppBarMessageId = RegisterWindowMessage(APPBAR_UNIQUE_IDENTIFIER);
                 }
 
                 return _AppBarMessageId;
             }
         }
+
+
+
+/*        private static string _ABDWindowId = "";
+        public static string ABDWindowId
+        {
+            get
+            {
+                if (_ABDWindowId == "")
+                {
+                    _ABDWindowId = AppBarMessageId;
+                }
+
+                return _AppBarMessageId;
+            }
+        }
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         public IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
@@ -328,6 +371,32 @@ namespace DesktopBanner
             }
 
             return IntPtr.Zero;
+        }
+
+        public void SaveAppbarRestoreData() {
+
+            var appBarData = GetAppBarData();
+            DateTimeOffset currentDateTimeOffset = DateTimeOffset.UtcNow;
+            long unixEpochTime = currentDateTimeOffset.ToUnixTimeMilliseconds();
+
+            
+
+            Reg.SetStringProperty("HKEY_CURRENT_USER\\SOFTWARE\\DesktopBanner\\ABRegistrations", AppBarMessageId.ToString() + "_" + unixEpochTime, appBarData.hWnd.ToString());
+
+            /*
+             * 
+            // Main Application (During AppBar Registration)
+            IntPtr appBarWindowHandle = ...; // Your AppBar window handle
+            string uniqueIdentifier = "YourAppIdentifier"; // Use a unique identifier
+
+            // Store the AppBar window handle in the Windows Registry
+            using (RegistryKey key = Registry.CurrentUser.CreateSubKey("Software\\DesktopBanner\\ABRegistrations"))
+            {
+                if (key != null)
+                {
+                    Reg.S key.SetValue(uniqueIdentifier, appBarWindowHandle.ToString());
+                }
+            }*/
         }
 
 
