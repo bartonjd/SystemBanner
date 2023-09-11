@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<policyDefinitionResources revision="1.0" schemaVersion="1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  
+  <displayName>DesktopBanner</displayName>
+  
+  <description>Policy definitions for Desktop Banner customization</description>
+
+  <resources>
+<stringTable>
+
+  <string id="DesktopBanner">Desktop Banner</string>
+  <string id="DesktopBanner_Configuration">Desktop Banner Configuration</string>
+  
+  <string id="DesktopBanner_Explain">
+  Enabling this policy will show a desktop banner at the configured position on all connected displays. Setting this policy as "Not Configured" or Disabled will turn off the desktop banner and nothing will be displayed.
+  
+Left display:  the text that should be displayed on the left side of the banner. Left aligned.
+
+Center display: text to be displayed in the center of each Banner, center aligned
+
+Right display: the text that should be displayed on the right side of the banner, right aligned
+
+Banner position: configure's, whether the banner is displayed on the top, or on the top and bottom of the display
+
+Opacity: integer value out of 100 which controls how opaque the banner is
+
+Font color: a basic color name or six digit hexadecimal color code (e.g. #ffeedd)
+
+Background color: a basic color name or six digit hexadecimal color code (e.g. #ffeedd)
+
+BannerStyle:
+
+ - Static: Banner will reserve space and prevent other windows or applications from occupying the banner area
+
+ - Roll over: Banner will hide when the user move the mouse on top of the banner
+  
+  </string>
+
+  <string id="BannerPosition">Banner Position</string>
+  <string id="BannerPosTop">Top</string>
+  <string id="BannerPosTopAndBottom">Top and Bottom</string>
+  <string id="BannerStyle">Banner Style</string>
+
+  <string id="BannerStyleStatic">Static</string>
+  <string id="BannerStyleRollover">Rollover</string>
+</stringTable>
+
+<presentationTable>
+
+  <presentation id="DesktopBanner_Configuration">
+    <textBox refId="LFT_DisplayText">
+      <label>Left Display Text</label>
+    </textBox>
+    
+    <textBox refId="CTR_DisplayText">
+      <label>Center Display Text</label>
+    </textBox>
+    
+    <textBox refId="RGT_DisplayText">
+      <label>Right Display Text</label>
+    </textBox>
+    
+    <dropdownList refId="POS_BannerPosition" noSort="true" defaultItem="0">Banner Position</dropdownList>
+    
+    <decimalTextBox refId="OPA_BannerOpacity" defaultValue="100" spin="true">Opacity</decimalTextBox>
+    
+    <textBox refId="FON_FontColor">
+      <label>Font Color</label>
+    </textBox>
+    
+    <textBox refId="BAK_BackgroundColor">
+      <label>Background Color</label>
+    </textBox>
+    
+    <dropdownList refId="STY_BannerStyle" noSort="true" defaultItem="0">Banner Style</dropdownList>
+  </presentation>
+  
+</presentationTable>
+ </resources>
+  
+</policyDefinitionResources>
