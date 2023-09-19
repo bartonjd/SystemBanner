@@ -1,40 +1,45 @@
-﻿using Microsoft.VisualBasic;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Interop;
-using System.Windows.Media.Media3D;
-using static AppBarCleanupHelper.App;
+using System.Diagnostics;
+using System.Timers;
+using System.Linq;
+using static System.Net.Mime.MediaTypeNames;
 
-namespace AppBarCleanupHelper
+namespace DesktopBannerCleanupHelper
 {
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : Application
+    public class App
     {
+        private static System.Timers.Timer timer;
+        public static void Main()
+        {
 
-        protected override void OnStartup(StartupEventArgs e)
+            timer = new System.Timers.Timer(5000);
+            timer.AutoReset = true;
+            timer.Elapsed += CheckBannerProcess;
+            timer.Start();
+
+
+
+            Console.ReadLine();
+        }
+
+        private static void BannerCleanup()
         {
             string uniqueIdentifier = "DesktopBanner_AppBarMessage_ECDFB5206FC2"; // Use the same unique identifier
             string keyPath = "Software\\DesktopBanner\\ABRegistrations"; // Replace with your actual key path
 
-            using (RegistryKey? key = Registry.CurrentUser.OpenSubKey(keyPath)) {
+            using (RegistryKey? key = Registry.CurrentUser.OpenSubKey(keyPath))
+            {
                 if (key != null)
                 {
                     // Enumerate through the value names
                     foreach (string valueName in key.GetValueNames())
                     {
-                        
+
                         uint AppBarId = uint.Parse(valueName.Split('_')[0]);
                         // Get the value data
                         string windowHandleString = key.GetValue(valueName) as string;
@@ -75,6 +80,7 @@ namespace AppBarCleanupHelper
             public int Right;
             public int Bottom;
         }
+
         [DllImport("shell32.dll", SetLastError = true)]
         public static extern uint SHAppBarMessage(uint dwMessage, ref APPBARDATA pData);
         private static void UnregisterAppBar(IntPtr appBarWindowHandle, uint AppBarId)
@@ -85,17 +91,45 @@ namespace AppBarCleanupHelper
                 cbSize = (uint)Marshal.SizeOf(typeof(APPBARDATA)),
                 hWnd = appBarWindowHandle
             };
-           
-            
 
 
-        SHAppBarMessage(ABM_REMOVE, ref appBarData);
+            SHAppBarMessage(ABM_REMOVE, ref appBarData);
             var a1 = 5;
         }
 
 
 
-        // Helper Program (During Cleanup)
+        private static void TimedAction()
+        {
+
+            // Stop timer and cleanup
+            timer.Stop();
+            timer.Dispose(); 
+
+            BannerCleanup();
+
+            Console.WriteLine("Banner process not running!");
+            // Cleanup is complete, exit and free up resources
+            Environment.Exit(0);
+
+        }
+        private static void CheckBannerProcess(object sender, ElapsedEventArgs e)
+        {
+            if (Process.GetProcessesByName("DesktopBanner").Any())
+            {
+                // Reset the timer if process is running
+
+                Console.WriteLine("Banner process is running!");
+                return;
+            }
+            else
+            {
+                TimedAction();
+            }
+        }
+
     }
 
 }
+
+

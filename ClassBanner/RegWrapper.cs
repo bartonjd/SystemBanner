@@ -27,7 +27,7 @@ namespace DesktopBanner
             {
                 value = -1;
             }
-            return double.Parse((string)value);
+            return double.Parse((string)value.ToString());
         }
         static public string? GetString(string Path, string Property)
         {

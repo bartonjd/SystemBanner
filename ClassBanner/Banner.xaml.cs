@@ -47,9 +47,9 @@ namespace DesktopBanner
         public string TextColor = "#000000";
         //Object representing the screen on which the banner is to be displayed on 
         public Screen? Display;
-        private string? LeftDisplay = "";
-        public string? CenterDisplay = "";
-        private string? RightDisplay = "";
+        private string? LeftDisplayText = "";
+        public string? CenterDisplayText = "";
+        private string? RightDisplayText = "";
         public Rect ScaledScreen;
         public string? DisplayDevice;
         public string? _displayIdentifier;
@@ -78,15 +78,6 @@ namespace DesktopBanner
             }
         }
 
-        static Banner()
-        {
-            //ShowInTaskbarProperty.OverrideMetadata(typeof(MainWindow), new FrameworkPropertyMetadata(false));
-            /*MinHeightProperty.OverrideMetadata(typeof(MainWindow), new FrameworkPropertyMetadata(20d, MinMaxHeightWidth_Changed));
-            MinWidthProperty.OverrideMetadata(typeof(MainWindow), new FrameworkPropertyMetadata(20d, MinMaxHeightWidth_Changed));
-            MaxHeightProperty.OverrideMetadata(typeof(MainWindow), new FrameworkPropertyMetadata(MinMaxHeightWidth_Changed));
-            MaxWidthProperty.OverrideMetadata(typeof(MainWindow), new FrameworkPropertyMetadata(MinMaxHeightWidth_Changed));
-            */
-        }
         public Banner(bool ShowOnBottom = false)
         {
             InitializeComponent();
@@ -132,6 +123,7 @@ namespace DesktopBanner
             {
                 { "@USER", Utils.GetCurrentUser()},
                 { "@HOST", Utils.GetHostName()}
+                //Add date?
 
             };
         }
@@ -152,15 +144,15 @@ namespace DesktopBanner
         }
         private void PrepareBannerText()
         {
-            LeftDisplay = Reg.GetString(REGISTRYROOT, "LeftDisplay");
-            RightDisplay = Reg.GetString(REGISTRYROOT, "RightDisplay");
-            CenterDisplay = Reg.GetString(REGISTRYROOT, "CenterDisplay");
+            LeftDisplayText = Reg.GetString(REGISTRYROOT, "LeftDisplayText");
+            RightDisplayText = Reg.GetString(REGISTRYROOT, "RightDisplayText");
+            CenterDisplayText = Reg.GetString(REGISTRYROOT, "CenterDisplayText");
 
             //Get the dictionary containing value which will be used for any token substitutions in the banner labels, e.g. @USER would become the current users username
             Dictionary<string, string> tokenMap = GetTokenMap();
-            lblLeftDisplay.Content = PerformTokenSubstitution(LeftDisplay, tokenMap);
-            lblCenterDisplay.Content = PerformTokenSubstitution(CenterDisplay, tokenMap);
-            lblRightDisplay.Content = PerformTokenSubstitution(RightDisplay, tokenMap);
+            lblLeftDisplay.Content = PerformTokenSubstitution(LeftDisplayText, tokenMap);
+            lblCenterDisplay.Content = PerformTokenSubstitution(CenterDisplayText, tokenMap);
+            lblRightDisplay.Content = PerformTokenSubstitution(RightDisplayText, tokenMap);
         }
 
         protected void Window_Activated(object sender, EventArgs e)
