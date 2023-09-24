@@ -1,10 +1,7 @@
 ﻿using Microsoft.Win32;
-using System;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.Timers;
-using System.Linq;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace DesktopBannerCleanupHelper
 {

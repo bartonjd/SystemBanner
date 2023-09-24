@@ -4,6 +4,10 @@ using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Security.Cryptography.Xml;
 using System.Diagnostics.Eventing.Reader;
+using System.Security.Cryptography;
+using System.Text;
+using System.Collections;
+using System.Linq;
 
 namespace DesktopBanner
 {
@@ -209,7 +213,7 @@ namespace DesktopBanner
 
         }
         */
-        static public RegistryKey? GetRegistryKey(string Path)
+        static public RegistryKey? GetRegistryKey(string Path, Boolean isWriteable)
         {
             var newPath = FormatPath(Path);
             bool keyExists = KeyExists(newPath);
@@ -217,22 +221,81 @@ namespace DesktopBanner
             if (keyExists)
             {
                 string relativePath = RelativizePath((string)newPath);
-                key = GetHive(Path).OpenSubKey(relativePath, true);
+                key = GetHive(Path).OpenSubKey(@relativePath, isWriteable);
                 return key;
             }
             string keyName = GetTrailingPath(newPath);
             string parentPath = GetParentPath(newPath);
             NewKey(parentPath, keyName);
-            return GetRegistryKey(newPath);
+            return GetRegistryKey(newPath,isWriteable);
         }
-    
+        public static Dictionary<string, object> GetAllProperties(string registryKeyPath)
+        {
+            Dictionary<string, object> properties = new Dictionary<string, object>();
+            //No need for a writeable registry key reference here
+            Boolean writeable = false;
+            RegistryKey? key = GetRegistryKey(registryKeyPath,writeable);
+
+            if (key is not null)
+            {
+                foreach (string valueName in key.GetValueNames())
+                {
+                    object value = key.GetValue(valueName);
+                    properties.Add(valueName, value);
+                }
+            }
+
+            return properties;
+        }
+
+        public static string GetMd5Hash(string registryKey)
+        {
+
+            // Create builder for hash
+            StringBuilder builder = new StringBuilder();
+            var dict = GetAllProperties(registryKey);
+
+            // Convert dictionary to list to allow sorting
+            var list = dict.ToList();
+
+            // Sort list by key
+            var sortedList = list.OrderBy(x => x.Key).ToList();
+
+            // Loop through sorted list instead of dict
+            foreach (var kv in sortedList)
+            {
+                // Append key and value
+
+                builder.Append(kv.Key);
+                builder.Append(kv.Value);
+            }
+
+            // Convert builder string to byte array
+            byte[] bytes = Encoding.UTF8.GetBytes(builder.ToString());
+
+            // Create MD5 hash from bytes    
+            using (var md5 = MD5.Create())
+            {
+                byte[] hashBytes = md5.ComputeHash(bytes);
+
+                // Convert hash byte array to hex string
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < hashBytes.Length; i++)
+                {
+                    sb.Append(hashBytes[i].ToString("X2"));
+                }
+                return sb.ToString();
+            }
+        }
         static public void SetIntProperty(String Path, String Property, Int32 Value)
         {
 
         }
         static public void SetStringProperty(String Path, String Property, string Value)
         {
-            using (RegistryKey? key = GetRegistryKey(Path))
+            //Open a writeable registry key as we need to make changes, should only write to HKEY_CURRENT_USER
+            Boolean writeable = true;
+            using (RegistryKey? key = GetRegistryKey(Path, writeable))
             {
                 {
                     if (key != null)

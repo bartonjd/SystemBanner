@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.IO;
-using WpfScreenHelper;
 using Microsoft.Win32;
 using System.Threading;
 using System.Diagnostics;
 using System.Reflection;
-using System.Resources;
+
+using System.Windows.Threading;
+using System.Timers;
 
 
 namespace DesktopBanner
@@ -20,6 +21,9 @@ namespace DesktopBanner
         //Configurable
         // Base registry path, should end with trailing \
         public const string REGISTRYROOT = @"HKLM\SOFTWARE\DesktopBanner\";
+        //private System.Timers.Timer? settingsTimer;
+        private DispatcherTimer? settingsTimer;
+        private string settingsHash = "";
 
         public Dictionary<string, Banner> BannerList = new();
         //Instantiate a new BannerManager, this creates and destroys banners, keeps track of open banners and adjusts how many are displayed when a monitor/display is added or removed
@@ -27,12 +31,19 @@ namespace DesktopBanner
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            DisplayMode displayMode;
-            //DisplayMode 1 is Rollup banner (hides on mouseover, DisplayMode 2 is static banner 
-            if (Reg.PropertyExists(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "DisplayMode"))
+            //Calculate hash of initial registry settings, if settings change the hashes can be compared in order to refresh the banner
+            settingsHash = Reg.GetMd5Hash(REGISTRYROOT);
+
+            //Initialize settings check timer to poll for changes to the banner settings in the registry every 5 minutes
+            SettingsCheckTimerSetup();
+
+
+            //DisplayMode 1 is Rollup banner (hides on mouseover, DisplayMode 2 is static banner
+            DisplayMode displayMode; 
+            if (Reg.PropertyExists(REGISTRYROOT, "DisplayMode"))
             {
                 //If DisplayMode is null set to Overlay style
-                displayMode = (DisplayMode)((int?)Reg.GetInt(@"HKLM\SOFTWARE\DesktopBanner\", "DisplayMode") ?? 0);
+                displayMode = (DisplayMode)((int?)Reg.GetInt(REGISTRYROOT, "DisplayMode") ?? 0);
             }
             else
             {
@@ -40,7 +51,7 @@ namespace DesktopBanner
             }
 
             //If at least the CenterDisplayText value is set then proceed
-            bool exists = Reg.PropertyExists(@"HKLM\SOFTWARE\DesktopBanner", "CenterDisplayText");
+            bool exists = Reg.PropertyExists(REGISTRYROOT, "CenterDisplayText");
 
             //Begin polling utility which will monitor for close of the banner
             StartBannerCleanupHelper();
@@ -61,13 +72,42 @@ namespace DesktopBanner
 
         }
 
+        private void SettingsCheckTimerSetup()
+        {
+            this.settingsTimer = new DispatcherTimer();
+            this.settingsTimer.Interval = TimeSpan.FromSeconds(30);
+            this.settingsTimer.Tick += SettingsTimerElapsed;
 
-        private void SystemEvents_DisplaySettingsChanged(object? sender, EventArgs e)
+            // Start the timer
+            this.settingsTimer.Start();
+        }
+
+        private void SettingsTimerElapsed(object sender, EventArgs e)
+        {
+            //if (this.settingsTimer is not null)
+            //{
+            //  this.settingsTimer.Stop();
+                string currentSettingsHash = Reg.GetMd5Hash(REGISTRYROOT);
+                //If registry key has changed, refresh the banners to apply new settings
+                if (currentSettingsHash != this.settingsHash) 
+                {
+                    // Queue method to run on UI thread
+                    Dispatcher.Invoke(() =>
+                    {
+                        WDM.Refresh();
+                    });
+                    this.settingsHash = currentSettingsHash;
+                }
+            //}
+        }
+
+            private void SystemEvents_DisplaySettingsChanged(object? sender, EventArgs e)
         {
             //Sleep to ensure displays finish adjusting after a display is added or removed
             //if this is not done the banner will often move to the wrong position by performing
             //calculations before the correct screen size can be determined
             Thread.Sleep(5000);
+            //Refresh the Window/Banner manager
             WDM.Refresh();
         }
 
@@ -85,7 +125,10 @@ namespace DesktopBanner
             string exePath = Path.Combine(uniqueFolder, "BannerCleanupHelper.exe");
             using (FileStream fileStream = File.Create(exePath))
             {
-                resourceStream.CopyTo(fileStream);
+                if (resourceStream is not null)
+                {
+                    resourceStream.CopyTo(fileStream);
+                }
             }
 
             // Start process
