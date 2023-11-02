@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Collections;
 using System.Linq;
+using System.Diagnostics.Metrics;
 
 namespace DesktopBanner
 {
@@ -45,6 +46,12 @@ namespace DesktopBanner
             {
                 return "";
             }
+        }
+        static public bool? GetBool(string Path, string Property)
+        {
+            Path = FormatPath(Path);
+            var value = Registry.GetValue(Path, Property, "");
+            return ConvertToBoolean(value);
         }
         static public dynamic? GetValue(string Path, string Property)
         {
@@ -247,7 +254,36 @@ namespace DesktopBanner
 
             return properties;
         }
+        public static bool ConvertToBoolean(dynamic value)
+        {
+            if (value is string stringValue)
+            {
+                // Convert string values to boolean.
+                if (stringValue.Equals("1", StringComparison.OrdinalIgnoreCase) || stringValue.Equals("true", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+                else if (stringValue.Equals("0", StringComparison.OrdinalIgnoreCase) || stringValue.Equals("false", StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+            }
+            else if (value is int intValue)
+            {
+                // Convert integer values to boolean.
+                if (intValue == 1)
+                {
+                    return true;
+                }
+                else if (intValue == 0)
+                {
+                    return false;
+                }
+            }
 
+            // If the input value is not recognized as a valid boolean representation, return a default value (e.g., false).
+            return false;
+        }
         public static string GetMd5Hash(string registryKey)
         {
 

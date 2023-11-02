@@ -211,13 +211,13 @@ namespace DesktopBanner
             {
                 return;
             }
-
+/*
             if (IsAppBarRegistered)
             {
                 var abd = GetAppBarData();
                 SHAppBarMessage(ABM.REMOVE, ref abd);
                 IsAppBarRegistered = false;
-            }
+            }*/
             
         }
 
@@ -311,26 +311,41 @@ namespace DesktopBanner
         }
 
 
-
-/*        private static string _ABDWindowId = "";
-        public static string ABDWindowId
+        private void UnregisterAppBar(IntPtr appBarWindowHandle, int AppBarId)
         {
-            get
+            APPBARDATA appBarData = new APPBARDATA
             {
-                if (_ABDWindowId == "")
-                {
-                    _ABDWindowId = AppBarMessageId;
-                }
+                uCallbackMessage = AppBarId,
+                cbSize = (int)Marshal.SizeOf(typeof(APPBARDATA)),
+                hWnd = appBarWindowHandle
+            };
 
-                return _AppBarMessageId;
-            }
+
+            SHAppBarMessage(ABM.REMOVE, ref appBarData);
+
+
+            var abd = GetAppBarData();
+            SHAppBarMessage(ABM.REMOVE, ref abd);
+            IsAppBarRegistered = false;
+
+
         }
 
-*/
+        /*        private static string _ABDWindowId = "";
+                public static string ABDWindowId
+                {
+                    get
+                    {
+                        if (_ABDWindowId == "")
+                        {
+                            _ABDWindowId = AppBarMessageId;
+                        }
 
+                        return _AppBarMessageId;
+                    }
+                }
 
-
-
+        */
 
 
 

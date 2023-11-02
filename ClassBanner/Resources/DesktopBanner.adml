@@ -22,7 +22,7 @@ Right display: the text that should be displayed on the right side of the banner
 
 Banner position: configure's, whether the banner is displayed on the top, or on the top and bottom of the display
 
-Opacity: integer value out of 100 which controls how opaque the banner is
+Opacity: Integer value out of 100 which controls the banner opacity
 
 Font color: a basic color name or six digit hexadecimal color code (e.g. #ffeedd)
 
@@ -60,7 +60,7 @@ BannerStyle:
       <label>Right Display Text</label>
     </textBox>
     
-    <dropdownList refId="POS_BannerPosition" noSort="true" defaultItem="0">Banner Position</dropdownList>
+    <dropdownList refId="POS_BannerPosition" noSort="true" defaultItem="0">Display Position</dropdownList>
     
     <decimalTextBox refId="OPA_BannerOpacity" defaultValue="100" spin="true">Opacity</decimalTextBox>
     

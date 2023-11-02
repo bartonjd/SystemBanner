@@ -91,7 +91,6 @@ namespace DesktopBannerCleanupHelper
 
 
             SHAppBarMessage(ABM_REMOVE, ref appBarData);
-            var a1 = 5;
         }
 
 

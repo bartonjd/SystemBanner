@@ -35,7 +35,7 @@
             <Label x:Name="lblRightDisplay" Content="" HorizontalContentAlignment="Right" FontWeight="Bold" Margin="0,-2,0,0" Foreground="#000000"/>
         </StackPanel>
         <StackPanel VerticalAlignment="Center">
-            <Label x:Name="lblCenterDisplay" Content="CENTER" HorizontalContentAlignment="Center" FontWeight="Bold" Margin="0,-2,0,0" Padding="5,6,5,5"/>
+            <Label x:Name="lblCenterDisplay" Content="CENTER" HorizontalContentAlignment="Center" FontWeight="Bold" Margin="0,-2,0,0" Padding="5,6,5,5" HorizontalAlignment="Center"/>
         </StackPanel>
     </DockPanel>
 </Window>

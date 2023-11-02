@@ -63,7 +63,6 @@ namespace DesktopBanner
             WDM.Init(displayMode);
         }
 
-
         protected override void OnExit(ExitEventArgs e)
         {
             //Clean up DisplaySettingsChanged listener on exit
@@ -94,7 +93,7 @@ namespace DesktopBanner
                     // Queue method to run on UI thread
                     Dispatcher.Invoke(() =>
                     {
-                        WDM.Refresh();
+                        WDM.Refresh2();
                     });
                     this.settingsHash = currentSettingsHash;
                 }

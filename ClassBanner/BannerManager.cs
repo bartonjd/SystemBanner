@@ -14,28 +14,18 @@ namespace DesktopBanner
         public void Init(DisplayMode defaultDisplayMode = DisplayMode.Overlay)
         {
 
-            bool ShowOnBottom = false;
             DefaultDisplayMode = defaultDisplayMode;
-            //string ShowBottomBanner = Utils.GetRegValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\DesktopBanner\", "ShowBottomBanner");
-            //////
-            string ShowBottomBanner = "1";
-            if (ShowBottomBanner == "1")
+            var ShowBottomBanner = Reg.GetBool(App.REGISTRYROOT, "ShowOnBottom");
+            ShowOnBottom =  (ShowBottomBanner != null) ? (bool)ShowBottomBanner: false;
+
+            foreach (var screen in Screen.AllScreens)
             {
-                ShowOnBottom = true;
-            }
-            else
-            {
-                ShowOnBottom = false;
-            }
-            foreach (var ss in Screen.AllScreens)
-            {
-                this.CreateBanner(ss);
+                this.CreateBanner(screen);
                 if (ShowOnBottom)
                 {
-                    this.CreateBanner(ss, true);
+                    this.CreateBanner(screen, true);
                 }
             }
-            //Refresh();
         }
         public void Add(string DisplayId, Banner mw)
         {
@@ -56,7 +46,6 @@ namespace DesktopBanner
             {
                 DisplayInfo.BottomBanner = mw;
             }
-            
 
         }
         public void Delete(string DisplayId)
@@ -65,6 +54,19 @@ namespace DesktopBanner
             {
                 Displays.Remove(DisplayId);
             }
+        }
+        private void ClearDisplayReservations(Display d)
+        {
+            if (d.TopBanner != null)
+            {
+                UnregisterAppBar(d.TopBanner);
+            }
+            if (d.BottomBanner != null)
+            {
+                UnregisterAppBar(d.BottomBanner);
+            }
+
+            //Cleanup appbardata variables 
         }
         private void DisposeDisplay(Display d)
         {
@@ -113,7 +115,6 @@ namespace DesktopBanner
                     break;
             };
 
-
             BannerScreenConfig config = new(s);
             banner.SetBannerBounds(config);
             banner.Display = s;
@@ -127,6 +128,14 @@ namespace DesktopBanner
         public void Refresh()
         {
             Dictionary<string, Screen?> AllScreensList = new();
+            foreach (var d in Displays)
+            {
+                if (!AllScreensList.ContainsKey(d.Key))
+                {
+                    ClearDisplayReservations(d.Value);
+                    DisposeDisplay(d.Value);
+                }
+            }
             foreach (var s in Screen.AllScreens)
             {
                 string ScreenId = GenerateUniqueId(s);
@@ -140,14 +149,52 @@ namespace DesktopBanner
                     }
                 }
             }
-
+        }
+        public void Refresh2()
+        {
+            Dictionary<string, Screen?> AllScreensList = new();
+            //Get latest value for ShowOnBottom to determine whether option to show bottom banner has changed
+            var ShowBottomBanner = Reg.GetValue(App.REGISTRYROOT, "ShowOnBottom");
+            ShowOnBottom = ShowBottomBanner != null;
             foreach (var d in Displays)
             {
-                if (!AllScreensList.ContainsKey(d.Key))
+                if (d.Value.TopBanner != null)
                 {
-                    DisposeDisplay(d.Value);
+                    d.Value.TopBanner.UpdateSettings();
                 }
+
+                if (d.Value.BottomBanner != null)
+                {
+                    if (ShowOnBottom)
+                    {
+                        d.Value.BottomBanner.UpdateSettings();
+                    }
+                    else
+                    {
+                        UnregisterAppBar(d.Value.BottomBanner);
+                        d.Value.BottomBanner.Close();
+                    }
+                }
+                else { 
+                    
+                }
+
             }
+            foreach (var s in Screen.AllScreens)
+            {
+                /*string ScreenId = GenerateUniqueId(s);
+                AllScreensList.Add(ScreenId, s);
+                if (!Displays.ContainsKey(ScreenId))
+                {
+                    CreateBanner(s, false);
+                    if (ShowOnBottom)
+                    {
+                        CreateBanner(s, true);
+                    }
+                }*/
+            }
+
+
         }
     }
 }

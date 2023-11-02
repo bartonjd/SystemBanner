@@ -28,7 +28,6 @@ namespace DesktopBanner
         Static = 2
     }
 
-
     public partial class Banner : Window
     {
         public bool ShowOnBottom { get; set; }
@@ -78,7 +77,21 @@ namespace DesktopBanner
             }
         }
 
-        public Banner(bool ShowOnBottom = false)
+/*        public static readonly DependencyProperty BackgroundColorProperty =
+            DependencyProperty.Register(
+              "Background",
+              typeof(Brush),
+              typeof(Banner),
+              new FrameworkPropertyMetadata(new SolidColorBrush(Color.FromRgb(0, 128, 0))));
+
+        public Brush BackgroundColor
+        {
+            get { return (Brush)GetValue(BackgroundColorProperty); }
+            set { SetValue(BackgroundColorProperty, value); }
+        }
+    */
+
+    public Banner(bool ShowOnBottom = false)
         {
             InitializeComponent();
             //Bind WPF Banner to class values 
@@ -96,7 +109,10 @@ namespace DesktopBanner
             {
                 {"UNCATEGORIZED", "Uncategorized"}
             };
+            UpdateSettings();
+        }
 
+        public void UpdateSettings() {
             bool checkRegPath = Reg.KeyExists(REGISTRYROOT);
             if (checkRegPath)
             {
@@ -111,10 +127,10 @@ namespace DesktopBanner
                 //Set the banners opacity
                 Opacity = RegularOpacity;
 
-                //SUbstitute tokens, check for nulls and set Left, Center and Right banner display labels
+                //Substitute tokens, check for nulls and set Left, Center and Right banner display labels
                 PrepareBannerText();
+                FormatBanner();
             }
-
 
         }
         private Dictionary<string, string> GetTokenMap()
@@ -153,6 +169,13 @@ namespace DesktopBanner
             lblLeftDisplay.Content = PerformTokenSubstitution(LeftDisplayText, tokenMap);
             lblCenterDisplay.Content = PerformTokenSubstitution(CenterDisplayText, tokenMap);
             lblRightDisplay.Content = PerformTokenSubstitution(RightDisplayText, tokenMap);
+        }
+
+        private void FormatBanner() {
+            string? bgColorCode = Reg.GetString(REGISTRYROOT, "BackgroundColor");
+            SolidColorBrush? bgColor = Utils.GetColorBrush(bgColorCode);
+            //BackgroundColor = bgColor;
+            Background = bgColor;
         }
 
         protected void Window_Activated(object sender, EventArgs e)

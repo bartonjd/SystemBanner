@@ -27,7 +27,7 @@
         <text id="CTR_DisplayText" valueName="CenterDisplayText"/> 
         <text id="RGT_DisplayText" valueName="RightDisplayText"/>
 
-        <enum id="POS_BannerPosition" valueName="BannerPosition">
+        <enum id="POS_BannerPosition" valueName="ShowOnBottom">
         <item displayName="$(string.BannerPosTop)">
             <value>
                 <decimal value="0"/>
@@ -40,7 +40,7 @@
             </value>
         </item>
         </enum>
-        <decimal id="OPA_BannerOpacity" valueName="BannerOpacity" required="true" minValue="0" maxValue="100" />
+        <decimal id="OPA_BannerOpacity" valueName="Opacity" required="true" minValue="0" maxValue="100" />
 
         <text id="FON_FontColor" valueName="FontColor" required="true" />
 
