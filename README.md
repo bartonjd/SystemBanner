@@ -11,30 +11,30 @@ A professional Windows desktop banner application designed for displaying securi
 
 ---
 
-## 🎯 Features
+## Features
 
 ### Display Capabilities
-- ✅ **Multi-Monitor Support** - Automatically displays on all connected monitors
-- ✅ **Three Display Modes:**
+- **Multi-Monitor Support** - Automatically displays on all connected monitors
+- **Three Display Modes:**
   - **Overlay** - Banner overlays on top without reserving screen space
   - **Rollover** - Banner auto-hides when mouse hovers over it
   - **Static (AppBar)** - Reserves screen space, applications cannot overlap
-- ✅ **Customizable Text** - Three text fields (Left, Center, Right aligned)
-- ✅ **Magic Tokens** - `@USER` and `@HOST` automatically replaced with username/hostname
-- ✅ **Position Control** - Display on top only, or both top and bottom
-- ✅ **Custom Colors** - Support for named colors or hex color codes
-- ✅ **Opacity Control** - Adjustable transparency (0-100%)
+- **Customizable Text** - Three text fields (Left, Center, Right aligned)
+- **Magic Tokens** - `@USER` and `@HOST` automatically replaced with username/hostname
+- **Position Control** - Display on top only, or both top and bottom
+- **Custom Colors** - Support for named colors or hex color codes
+- **Opacity Control** - Adjustable transparency (0-100%)
 
 ### Management & Deployment
-- ✅ **Group Policy Support** - ADMX/ADML templates for centralized or local management
-- ✅ **Registry-Based Configuration** - Easy programmatic control
-- ✅ **Silent Installation** - MSI and EXE installer options
-- ✅ **Auto-Start** - Optional automatic startup with Windows
-- ✅ **Enterprise Ready** - Suitable for domain or standalone deployment
+- **Group Policy Support** - ADMX/ADML templates for centralized or local management
+- **Registry-Based Configuration** - Easy programmatic control
+- **Silent Installation** - MSI and EXE installer options
+- **Auto-Start** - Optional automatic startup with Windows
+- **Enterprise Ready** - Suitable for domain or standalone deployment
 
 ---
 
-## 📦 Installation
+## Installation
 
 ### Option 1: Run the Installer (Recommended)
 
@@ -69,7 +69,7 @@ DesktopBanner-Setup-1.0.exe /SILENT
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Using Group Policy (Recommended)
 
@@ -113,7 +113,7 @@ New-ItemProperty -Path "HKLM:\SOFTWARE\DesktopBanner" -Name "DisplayMode" -Value
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 ### Registry Settings
 
@@ -162,7 +162,7 @@ Special text values that are automatically replaced:
 
 ---
 
-## 🛠️ Building from Source
+## Building from Source
 
 ### Prerequisites
 
@@ -216,7 +216,7 @@ Located in `ClassBanner/Resources/`:
 
 ---
 
-## 📚 Documentation
+## Documentation
 
 Comprehensive documentation is available in the repository:
 
@@ -229,7 +229,7 @@ Comprehensive documentation is available in the repository:
 
 ---
 
-## 🎯 Use Cases
+## Use Cases
 
 ### Department of Defense (DoD)
 Display security classification levels:
@@ -260,7 +260,7 @@ Background: #008000 (Green)
 
 ---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Banner Not Displaying
 
@@ -312,7 +312,7 @@ Background: #008000 (Green)
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please follow these guidelines:
 
@@ -324,7 +324,7 @@ Contributions are welcome! Please follow these guidelines:
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE.txt](ClassBanner/LICENSE.txt) file for details.
 
@@ -344,7 +344,7 @@ all copies or substantial portions of the Software.
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **Inno Setup** - Free installer for Windows applications
 - **WiX Toolset** - Free and open source toolset for creating Windows installers
@@ -353,7 +353,7 @@ all copies or substantial portions of the Software.
 
 ---
 
-## 📞 Support
+## Support
 
 For issues, questions, or feature requests:
 
@@ -362,18 +362,7 @@ For issues, questions, or feature requests:
 
 ---
 
-## 🗺️ Roadmap
-
-- [ ] Add support for custom fonts
-- [ ] Implement banner templates for common classifications
-- [ ] Add remote management API
-- [ ] Support for images/logos in banner
-- [ ] Multi-language support beyond English
-- [ ] macOS and Linux versions
-
----
-
-## 📊 Project Status
+## Project Status
 
 **Current Version:** 1.0.0  
 **Status:** Stable Release  
@@ -381,4 +370,4 @@ For issues, questions, or feature requests:
 
 ---
 
-**Made with ❤️ for secure computing environments**
+**Made with care for secure computing environments**

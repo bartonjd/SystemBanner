@@ -1,6 +1,6 @@
 # Desktop Banner - Quick Reference Guide
 
-## 🚀 Installation
+## Installation
 
 ```cmd
 # Run installer
@@ -10,7 +10,7 @@ DesktopBanner-Setup-1.0.exe
 DesktopBanner-Setup-1.0.exe /VERYSILENT /TASKS="autostart,installpolicy"
 ```
 
-## ⚙️ Configuration
+## Configuration
 
 ### Registry Key
 ```
@@ -28,7 +28,7 @@ New-ItemProperty -Path "HKLM:\SOFTWARE\DesktopBanner" -Name "Opacity" -Value 100
 New-ItemProperty -Path "HKLM:\SOFTWARE\DesktopBanner" -Name "DisplayMode" -Value 2 -PropertyType DWord -Force
 ```
 
-## 🎨 Common Configurations
+## Common Configurations
 
 ### DoD Top Secret
 ```powershell
@@ -67,7 +67,7 @@ RightDisplayText = "@USER"
 BackgroundColor = "#0000FF"  # Blue
 ```
 
-## 🎯 Display Modes
+## Display Modes
 
 | Mode | Value | When to Use |
 |------|-------|-------------|
@@ -75,7 +75,7 @@ BackgroundColor = "#0000FF"  # Blue
 | Rollover | 1 | Need to access top of screen easily |
 | Static | 2 | Maximum security, banner always visible |
 
-## 🔤 Magic Tokens
+## Magic Tokens
 
 | Token | Replaced With | Example Output |
 |-------|--------------|----------------|
@@ -83,7 +83,7 @@ BackgroundColor = "#0000FF"  # Blue
 | `@HOST` | Computer name | `WORKSTATION01` |
 | `@USER on @HOST` | Both combined | `JohnDoe on WORKSTATION01` |
 
-## 🎨 Color Options
+## Color Options
 
 ### Named Colors
 `Red`, `Green`, `Blue`, `Yellow`, `Orange`, `Purple`, `Black`, `White`
@@ -95,7 +95,7 @@ BackgroundColor = "#0000FF"  # Blue
 - `#FFA500` - Orange
 - `#800080` - Purple
 
-## 📋 Registry Settings Reference
+## Registry Settings Reference
 
 | Setting | Type | Values | Default |
 |---------|------|--------|---------|
@@ -107,7 +107,7 @@ BackgroundColor = "#0000FF"  # Blue
 | ShowOnBottom | DWORD | 0=Top, 1=Both | `0` |
 | DisplayMode | DWORD | 0/1/2 (see above) | `0` |
 
-## 🔧 Group Policy
+## Group Policy
 
 ### Enable Policy
 ```
@@ -123,7 +123,7 @@ Computer Configuration
 gpupdate /force
 ```
 
-## 🛠️ Troubleshooting
+## Troubleshooting
 
 ### Banner not showing?
 ```powershell
@@ -146,7 +146,7 @@ Stop-Process -Name DesktopBanner -Force
 Start-Process "C:\Program Files\DesktopBanner\DesktopBanner.exe"
 ```
 
-## 📞 Support
+## Support
 
 **Issues:** [GitHub Issues](https://github.com/yourusername/DesktopBanner/issues)
 
