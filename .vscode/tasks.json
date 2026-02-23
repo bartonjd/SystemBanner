@@ -1,0 +1,235 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        // ========================================
+        // BUILD TASKS
+        // ========================================
+        {
+            "label": "Build Application (Debug)",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "${workspaceFolder}/ClassBanner/DesktopBanner.csproj",
+                "-c",
+                "Debug"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Build Application (Release)",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "${workspaceFolder}/ClassBanner/DesktopBanner.csproj",
+                "-c",
+                "Release",
+                "--no-incremental"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Clean Build",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "clean",
+                "${workspaceFolder}/ClassBanner/DesktopBanner.csproj"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        // ========================================
+        // INSTALLER TASKS
+        // ========================================
+        {
+            "label": "Build Installer (Full Build + Compile)",
+            "type": "shell",
+            "command": "cmd",
+            "args": [
+                "/c",
+                "${workspaceFolder}\\ClassBanner\\Resources\\Build-Installer.bat"
+            ],
+            "windows": {
+                "command": "cmd",
+                "args": [
+                    "/c",
+                    "${workspaceFolder}\\ClassBanner\\Resources\\Build-Installer.bat"
+                ]
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": true,
+                "echo": true,
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": [],
+            "dependsOn": []
+        },
+        {
+            "label": "Compile Installer Only",
+            "type": "shell",
+            "command": "${workspaceFolder}/ClassBanner/Resources/Compile-Installer-Only.bat",
+            "windows": {
+                "command": "${workspaceFolder}/ClassBanner/Resources/Compile-Installer-Only.bat"
+            },
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build App Then Compile Installer",
+            "dependsOn": [
+                "Build Application (Release)",
+                "Compile Installer Only"
+            ],
+            "dependsOrder": "sequence",
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        // ========================================
+        // POWERSHELL TASKS
+        // ========================================
+        {
+            "label": "Build Installer (PowerShell)",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}/ClassBanner/Resources/Build-Installer.ps1"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": true
+            },
+            "problemMatcher": []
+        },
+        // ========================================
+        // WIX TASKS (Alternative)
+        // ========================================
+        {
+            "label": "Build WiX MSI Installer",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}/ClassBanner/Resources/Build-WiX-Installer.ps1",
+                "-WixVersion",
+                "v3"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated",
+                "focus": true
+            },
+            "problemMatcher": []
+        },
+        // ========================================
+        // UTILITY TASKS
+        // ========================================
+        {
+            "label": "Run DesktopBanner (Debug)",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "run",
+                "--project",
+                "${workspaceFolder}/ClassBanner/DesktopBanner.csproj",
+                "-c",
+                "Debug"
+            ],
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run DesktopBanner (Release)",
+            "type": "shell",
+            "command": "${workspaceFolder}/ClassBanner/bin/Release/net6.0-windows/win-x64/DesktopBanner.exe",
+            "windows": {
+                "command": "${workspaceFolder}/ClassBanner/bin/Release/net6.0-windows/win-x64/DesktopBanner.exe"
+            },
+            "group": "test",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "problemMatcher": [],
+            "dependsOn": ["Build Application (Release)"]
+        },
+        {
+            "label": "Open Output Folder",
+            "type": "shell",
+            "command": "explorer",
+            "args": [
+                "${workspaceFolder}/Output"
+            ],
+            "windows": {
+                "command": "explorer",
+                "args": [
+                    "${workspaceFolder}\\Output"
+                ]
+            },
+            "group": "none",
+            "presentation": {
+                "reveal": "never",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Clean All (App + Installer)",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-Command",
+                "Remove-Item -Path '${workspaceFolder}/ClassBanner/bin' -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item -Path '${workspaceFolder}/ClassBanner/obj' -Recurse -Force -ErrorAction SilentlyContinue; Remove-Item -Path '${workspaceFolder}/Output' -Recurse -Force -ErrorAction SilentlyContinue; Write-Host 'Clean complete!'"
+            ],
+            "group": "build",
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

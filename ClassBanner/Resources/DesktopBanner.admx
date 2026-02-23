@@ -9,13 +9,13 @@
   <resources minRequiredRevision="1.0"/>
   <categories>
     <category name="DesktopBanner" displayName="$(string.DesktopBanner)">
-      <parentCategory ref="windows_category" />
+      <parentCategory ref="windows:SYSTEM" />
     </category>
   </categories>
   
   <policies>
   
-    <policy name="DesktopBanner_Configuration" displayName="$(string.DesktopBanner_Configuration)" valueName="EnableBanner" explainText="$(string.DesktopBanner_Explain)" key="SOFTWARE\DesktopBanner" class="Machine" presentation="$(presentation.DesktopBanner_Configuration)" >
+    <policy name="DesktopBanner_Configuration" displayName="$(string.DesktopBanner_Configuration)" explainText="$(string.DesktopBanner_Explain)" key="SOFTWARE\DesktopBanner" class="Machine" presentation="$(presentation.DesktopBanner_Configuration)" >
 
       <parentCategory ref="DesktopBanner" />
 
@@ -24,7 +24,7 @@
       <elements>
 
         <text id="LFT_DisplayText" valueName="LeftDisplayText"/>
-        <text id="CTR_DisplayText" valueName="CenterDisplayText"/> 
+        <text id="CTR_DisplayText" valueName="CenterDisplayText"/>
         <text id="RGT_DisplayText" valueName="RightDisplayText"/>
 
         <enum id="POS_BannerPosition" valueName="ShowOnBottom">
@@ -40,26 +40,31 @@
             </value>
         </item>
         </enum>
-        <decimal id="OPA_BannerOpacity" valueName="Opacity" required="true" minValue="0" maxValue="100" />
 
-        <text id="FON_FontColor" valueName="FontColor" required="true" />
+        <decimal id="OPA_BannerOpacity" valueName="Opacity" required="true" minValue="0" maxValue="100" />
 
         <text id="BAK_BackgroundColor" valueName="BackgroundColor" required="true" />
 
-        <enum id="STY_BannerStyle" valueName="BannerStyle">
+        <enum id="DSP_DisplayMode" valueName="DisplayMode">
 
-        <item displayName="$(string.BannerStyleStatic)">
+        <item displayName="$(string.DisplayModeOverlay)">
             <value>
-                <string value="static">Static</string>
+                <decimal value="0"/>
             </value>
         </item>
-        
-        <item displayName="$(string.BannerStyleRollover)">
+
+        <item displayName="$(string.DisplayModeRollover)">
             <value>
-                <string value="rollover"/>
+                <decimal value="1"/>
             </value>
         </item>
-        
+
+        <item displayName="$(string.DisplayModeStatic)">
+            <value>
+                <decimal value="2"/>
+            </value>
+        </item>
+
         </enum>
       </elements>
 

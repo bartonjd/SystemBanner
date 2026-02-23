@@ -1,0 +1,47 @@
+{
+    // ========================================
+    // DEBUG CONFIGURATIONS (Press F5 to debug)
+    // ========================================
+    //
+    // ⚠️ IMPORTANT: These are for DEBUGGING, not building!
+    //
+    // TO BUILD THE INSTALLER:
+    //   Press Ctrl+Shift+B (NOT F5)
+    //   Select: "Build Installer (Full Build + Compile)"
+    //
+    // TO DEBUG THE APPLICATION:
+    //   First build with Ctrl+Shift+B
+    //   Then press F5
+    // ========================================
+
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch DesktopBanner (Debug)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "Build Application (Debug)",
+            "program": "${workspaceFolder}/ClassBanner/bin/Debug/net6.0-windows/win-x64/DesktopBanner.exe",
+            "args": [],
+            "cwd": "${workspaceFolder}/ClassBanner",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Launch DesktopBanner (Release)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "Build Application (Release)",
+            "program": "${workspaceFolder}/ClassBanner/bin/Release/net6.0-windows/win-x64/DesktopBanner.exe",
+            "args": [],
+            "cwd": "${workspaceFolder}/ClassBanner",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Attach to DesktopBanner",
+            "type": "coreclr",
+            "request": "attach"
+        }
+    ]
+}

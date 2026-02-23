@@ -13,36 +13,48 @@
   
   <string id="DesktopBanner_Explain">
   Enabling this policy will show a desktop banner at the configured position on all connected displays. Setting this policy as "Not Configured" or Disabled will turn off the desktop banner and nothing will be displayed.
-  
-Left display:  the text that should be displayed on the left side of the banner. Left aligned.
 
-Center display: text to be displayed in the center of each Banner, center aligned
+Text Display Fields:
 
-Right display: the text that should be displayed on the right side of the banner, right aligned
+Left Display Text: Text displayed on the left side of the banner (left-aligned)
+Center Display Text: Text displayed in the center of the banner (center-aligned)
+Right Display Text: Text displayed on the right side of the banner (right-aligned)
 
-Banner position: configure's, whether the banner is displayed on the top, or on the top and bottom of the display
+  SPECIAL TOKENS - These values will be automatically replaced:
 
-Opacity: Integer value out of 100 which controls the banner opacity
+  @USER  - Replaced with the current Windows username
+  @HOST  - Replaced with the computer hostname
 
-Font color: a basic color name or six digit hexadecimal color code (e.g. #ffeedd)
+  Examples:
+  - Enter "@USER" to display the logged-in username
+  - Enter "@HOST" to display the computer name
+  - Enter "UNCLASSIFIED" to display custom text
+  - Combine them: "@USER on @HOST" displays "JohnDoe on WORKSTATION01"
 
-Background color: a basic color name or six digit hexadecimal color code (e.g. #ffeedd)
+Banner Position: Configures whether the banner is displayed on the top only, or on both the top and bottom of the display
 
-BannerStyle:
+Opacity: Integer value (0-100) controlling banner transparency, where 100 is fully opaque and 0 is invisible
 
- - Static: Banner will reserve space and prevent other windows or applications from occupying the banner area
+Background Color: A color name (e.g. Green, Red, Blue) or hexadecimal color code (e.g. #008000 for green, #FF0000 for red)
 
- - Roll over: Banner will hide when the user move the mouse on top of the banner
-  
+Display Mode:
+
+ - Overlay: Banner displayed as an overlay without reserving screen space. Applications can draw beneath it.
+
+ - Rollover: Banner hides automatically when the user moves the mouse over it. Useful for accessing items near the screen edge.
+
+ - Static: Banner reserves screen space using Windows AppBar API. Applications cannot overlap the banner area. Most secure option for ensuring banner visibility.
+
   </string>
 
   <string id="BannerPosition">Banner Position</string>
   <string id="BannerPosTop">Top</string>
   <string id="BannerPosTopAndBottom">Top and Bottom</string>
-  <string id="BannerStyle">Banner Style</string>
 
-  <string id="BannerStyleStatic">Static</string>
-  <string id="BannerStyleRollover">Rollover</string>
+  <string id="DisplayMode">Display Mode</string>
+  <string id="DisplayModeOverlay">Overlay</string>
+  <string id="DisplayModeRollover">Rollover</string>
+  <string id="DisplayModeStatic">Static</string>
 </stringTable>
 
 <presentationTable>
@@ -51,28 +63,24 @@ BannerStyle:
     <textBox refId="LFT_DisplayText">
       <label>Left Display Text</label>
     </textBox>
-    
+
     <textBox refId="CTR_DisplayText">
       <label>Center Display Text</label>
     </textBox>
-    
+
     <textBox refId="RGT_DisplayText">
       <label>Right Display Text</label>
     </textBox>
-    
-    <dropdownList refId="POS_BannerPosition" noSort="true" defaultItem="0">Display Position</dropdownList>
-    
-    <decimalTextBox refId="OPA_BannerOpacity" defaultValue="100" spin="true">Opacity</decimalTextBox>
-    
-    <textBox refId="FON_FontColor">
-      <label>Font Color</label>
-    </textBox>
-    
+
+    <dropdownList refId="POS_BannerPosition" noSort="true" defaultItem="0">Banner Position</dropdownList>
+
+    <decimalTextBox refId="OPA_BannerOpacity" defaultValue="100" spin="true">Opacity (0-100)</decimalTextBox>
+
     <textBox refId="BAK_BackgroundColor">
-      <label>Background Color</label>
+      <label>Background Color (e.g. #008000 or Green)</label>
     </textBox>
-    
-    <dropdownList refId="STY_BannerStyle" noSort="true" defaultItem="0">Banner Style</dropdownList>
+
+    <dropdownList refId="DSP_DisplayMode" noSort="true" defaultItem="0">Display Mode</dropdownList>
   </presentation>
   
 </presentationTable>

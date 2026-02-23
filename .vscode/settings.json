@@ -1,0 +1,36 @@
+{
+    // VS Code Settings for DesktopBanner Project
+    "files.exclude": {
+        "**/bin": true,
+        "**/obj": true,
+        "**/.vs": true,
+        "**/BundleArtifacts": true
+    },
+    "search.exclude": {
+        "**/bin": true,
+        "**/obj": true,
+        "**/node_modules": true,
+        "**/.vs": true
+    },
+    // C# settings
+    "omnisharp.enableRoslynAnalyzers": true,
+    "omnisharp.enableEditorConfigSupport": true,
+    "omnisharp.enableImportCompletion": true,
+    "omnisharp.organizeImportsOnFormat": true,
+    // Editor settings
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+    },
+    // File associations
+    "files.associations": {
+        "*.iss": "ini",
+        "*.wxs": "xml",
+        "*.admx": "xml",
+        "*.adml": "xml"
+    },
+    // Terminal settings
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    // Recommended extensions message
+    "extensions.ignoreRecommendations": false
+}

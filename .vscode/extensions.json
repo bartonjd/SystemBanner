@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "ms-dotnettools.csharp",
+        "ms-dotnettools.csdevkit",
+        "ms-vscode.powershell",
+        "ms-vscode.hexeditor",
+        "redhat.vscode-xml",
+        "editorconfig.editorconfig"
+    ]
+}

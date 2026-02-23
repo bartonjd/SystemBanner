@@ -1,0 +1,60 @@
+<Project>
+  <!-- 
+    MSBuild Target for Inno Setup Installer
+    
+    This can be added to your DesktopBanner.csproj or used as a separate project file
+    
+    Usage in DesktopBanner.csproj:
+      Add this entire Target block before the closing </Project> tag
+    
+    Or use as standalone:
+      msbuild BuildInstaller.proj /t:BuildInstaller /p:Configuration=Release
+  -->
+  
+  <PropertyGroup>
+    <InnoSetupPath Condition="'$(InnoSetupPath)' == ''">C:\Program Files (x86)\Inno Setup 6\ISCC.exe</InnoSetupPath>
+    <InnoScriptFile>$(MSBuildThisFileDirectory)Resources\DesktopBanner-Installer.iss</InnoScriptFile>
+    <InstallerOutputDir>$(SolutionDir)Output</InstallerOutputDir>
+  </PropertyGroup>
+
+  <Target Name="BuildInstaller" AfterTargets="Build" Condition="'$(Configuration)' == 'Release'">
+    <Message Text="========================================" Importance="High" />
+    <Message Text="Building Inno Setup Installer" Importance="High" />
+    <Message Text="========================================" Importance="High" />
+    
+    <!-- Verify Inno Setup exists -->
+    <Error Condition="!Exists('$(InnoSetupPath)')" 
+           Text="Inno Setup not found at: $(InnoSetupPath)" />
+    
+    <!-- Verify script exists -->
+    <Error Condition="!Exists('$(InnoScriptFile)')" 
+           Text="Inno Setup script not found at: $(InnoScriptFile)" />
+    
+    <!-- Ensure output directory exists -->
+    <MakeDir Directories="$(InstallerOutputDir)" Condition="!Exists('$(InstallerOutputDir)')" />
+    
+    <!-- Compile the installer -->
+    <Message Text="Compiling installer from: $(InnoScriptFile)" Importance="High" />
+    <Exec Command="&quot;$(InnoSetupPath)&quot; &quot;$(InnoScriptFile)&quot;" 
+          WorkingDirectory="$(MSBuildProjectDirectory)" />
+    
+    <Message Text="========================================" Importance="High" />
+    <Message Text="Installer build complete!" Importance="High" />
+    <Message Text="Output: $(InstallerOutputDir)" Importance="High" />
+    <Message Text="========================================" Importance="High" />
+  </Target>
+  
+  <!-- Optional: Target to build installer without building the app -->
+  <Target Name="CompileInstallerOnly">
+    <Message Text="Compiling Inno Setup installer (app not rebuilt)..." Importance="High" />
+    
+    <Error Condition="!Exists('$(InnoSetupPath)')" 
+           Text="Inno Setup not found at: $(InnoSetupPath)" />
+    
+    <Exec Command="&quot;$(InnoSetupPath)&quot; &quot;$(InnoScriptFile)&quot;" 
+          WorkingDirectory="$(MSBuildProjectDirectory)" />
+    
+    <Message Text="Installer compilation complete!" Importance="High" />
+  </Target>
+  
+</Project>
