@@ -41,7 +41,7 @@ echo       Build completed successfully.
 echo.
 
 REM Check if build output exists
-set "EXE_PATH=%PROJECT_ROOT%\bin\Release\net6.0-windows\win-x64\DesktopBanner.exe"
+set "EXE_PATH=%PROJECT_ROOT%\bin\Release\net10.0-windows\win-x64\DesktopBanner.exe"
 if not exist "%EXE_PATH%" (
     echo ERROR: Build output not found at:
     echo %EXE_PATH%

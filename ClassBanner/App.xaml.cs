@@ -31,9 +31,11 @@ namespace DesktopBanner
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            //Check if the application is enabled in registry, if not shutdown immediately
-            bool isEnabled = Reg.PropertyExists(REGISTRYROOT, "Enabled") &&
-                           (Reg.GetInt(REGISTRYROOT, "Enabled") == 1);
+            bool isEnabled = true;
+            if (Reg.PropertyExists(REGISTRYROOT, "Enabled"))
+            {
+                isEnabled = Reg.GetInt(REGISTRYROOT, "Enabled") == 1;
+            }
 
             if (!isEnabled)
             {
@@ -41,7 +43,6 @@ namespace DesktopBanner
                 return;
             }
 
-            //Calculate hash of initial registry settings, if settings change the hashes can be compared in order to refresh the banner
             settingsHash = Reg.GetMd5Hash(REGISTRYROOT);
 
             //Initialize settings check timer to poll for changes to the banner settings in the registry every 5 minutes
