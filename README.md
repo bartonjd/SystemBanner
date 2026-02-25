@@ -1,10 +1,10 @@
-# Desktop Banner - DoD Security Classification Banner Tool
+# Desktop Banner - Security Classification Banner Tool
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%2F11-blue.svg)
 ![.NET](https://img.shields.io/badge/.NET-6.0-purple.svg)
 
-A professional Windows desktop banner application designed for displaying security classification banners, system information, and user notifications across all monitors. Ideal for DoD, government, and enterprise environments requiring persistent visual indicators.
+A Windows desktop banner application designed for displaying security classification banners, system information, and user notifications across all monitors. Ideal for government, and enterprise environments requiring persistent visual indicators.
 
 ![Banner Display](https://img.shields.io/badge/display-multi--monitor-green.svg)
 ![Group Policy](https://img.shields.io/badge/management-Group%20Policy-orange.svg)
@@ -231,7 +231,7 @@ Comprehensive documentation is available in the repository:
 
 ## Use Cases
 
-### Department of Defense (DoD)
+### Contractors & Industrial Security
 Display security classification levels:
 ```
 Left: @HOST
@@ -357,8 +357,8 @@ all copies or substantial portions of the Software.
 
 For issues, questions, or feature requests:
 
-- **Issues:** [GitHub Issues](https://github.com/yourusername/DesktopBanner/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/yourusername/DesktopBanner/discussions)
+- **Issues:** [GitHub Issues](https://github.com/bartonjd/SystemBanner/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/bartonjd/SystemBanner/discussions)
 
 ---
 

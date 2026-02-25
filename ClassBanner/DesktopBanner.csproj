@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net10.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -27,28 +27,10 @@
     <PackageReference Include="WpfScreenHelper" Version="2.1.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Resource1.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resource1.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Resource1.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resource1.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-
-
 
 	<Target Name="BannerCleanupHelper" AfterTargets="Build">
 		<ItemGroup>
 			<EmbeddedResources Include="$(SolutionDir)BannerCleanupHelper\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\BannerCleanupHelper.exe" />
 		</ItemGroup>
 	</Target>
-
-
 </Project>

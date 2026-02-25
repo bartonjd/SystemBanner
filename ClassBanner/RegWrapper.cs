@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.Win32;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
@@ -30,9 +30,14 @@ namespace DesktopBanner
             var value = Registry.GetValue(Path, Property, -1);
             if (null == value)
             {
-                value = -1;
+                return -1;
             }
-            return double.Parse((string)value.ToString());
+            var stringValue = value.ToString();
+            if (stringValue == null)
+            {
+                return -1;
+            }
+            return double.Parse(stringValue);
         }
         static public string? GetString(string Path, string Property)
         {
@@ -51,6 +56,10 @@ namespace DesktopBanner
         {
             Path = FormatPath(Path);
             var value = Registry.GetValue(Path, Property, "");
+            if (value == null)
+            {
+                return null;
+            }
             return ConvertToBoolean(value);
         }
         static public dynamic? GetValue(string Path, string Property)
@@ -247,8 +256,11 @@ namespace DesktopBanner
             {
                 foreach (string valueName in key.GetValueNames())
                 {
-                    object value = key.GetValue(valueName);
-                    properties.Add(valueName, value);
+                    object? value = key.GetValue(valueName);
+                    if (value is not null)
+                    {
+                        properties.Add(valueName, value);
+                    }
                 }
             }
 

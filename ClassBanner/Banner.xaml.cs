@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media.Animation;
@@ -174,8 +174,16 @@ namespace DesktopBanner
         private void FormatBanner() {
             string? bgColorCode = Reg.GetString(REGISTRYROOT, "BackgroundColor");
             SolidColorBrush? bgColor = Utils.GetColorBrush(bgColorCode);
-            //BackgroundColor = bgColor;
             Background = bgColor;
+
+            string? textColorCode = Reg.GetString(REGISTRYROOT, "TextColor");
+            SolidColorBrush? textColor = Utils.GetColorBrush(textColorCode);
+            if (textColor != null)
+            {
+                lblLeftDisplay.Foreground = textColor;
+                lblCenterDisplay.Foreground = textColor;
+                lblRightDisplay.Foreground = textColor;
+            }
         }
 
         protected void Window_Activated(object sender, EventArgs e)

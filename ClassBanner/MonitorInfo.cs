@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -52,20 +52,20 @@ namespace DesktopBanner
 
         public override string ToString() => DeviceId;
 
-        public override bool Equals(object obj) => Equals((MonitorInfo)obj);
+        public override bool Equals(object? obj) => obj is MonitorInfo other && Equals(other);
 
         public override int GetHashCode() => DeviceId.GetHashCode();
 
-        public bool Equals(MonitorInfo other) => this.DeviceId == other?.DeviceId;
+        public bool Equals(MonitorInfo? other) => other is not null && this.DeviceId == other.DeviceId;
 
-        public static bool operator ==(MonitorInfo a, MonitorInfo b)
+        public static bool operator ==(MonitorInfo? a, MonitorInfo? b)
         {
             if (ReferenceEquals(a, b))
             {
                 return true;
             }
 
-            if (ReferenceEquals(a, null))
+            if (a is null)
             {
                 return false;
             }
@@ -73,6 +73,6 @@ namespace DesktopBanner
             return a.Equals(b);
         }
 
-        public static bool operator !=(MonitorInfo a, MonitorInfo b) => !(a == b);
+        public static bool operator !=(MonitorInfo? a, MonitorInfo? b) => !(a == b);
     }
 }

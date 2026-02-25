@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.IO;
@@ -31,6 +31,16 @@ namespace DesktopBanner
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            //Check if the application is enabled in registry, if not shutdown immediately
+            bool isEnabled = Reg.PropertyExists(REGISTRYROOT, "Enabled") &&
+                           (Reg.GetInt(REGISTRYROOT, "Enabled") == 1);
+
+            if (!isEnabled)
+            {
+                Application.Current.Shutdown();
+                return;
+            }
+
             //Calculate hash of initial registry settings, if settings change the hashes can be compared in order to refresh the banner
             settingsHash = Reg.GetMd5Hash(REGISTRYROOT);
 
@@ -39,7 +49,7 @@ namespace DesktopBanner
 
 
             //DisplayMode 1 is Rollup banner (hides on mouseover, DisplayMode 2 is static banner
-            DisplayMode displayMode; 
+            DisplayMode displayMode;
             if (Reg.PropertyExists(REGISTRYROOT, "DisplayMode"))
             {
                 //If DisplayMode is null set to Overlay style
@@ -81,14 +91,14 @@ namespace DesktopBanner
             this.settingsTimer.Start();
         }
 
-        private void SettingsTimerElapsed(object sender, EventArgs e)
+        private void SettingsTimerElapsed(object? sender, EventArgs e)
         {
             //if (this.settingsTimer is not null)
             //{
             //  this.settingsTimer.Stop();
                 string currentSettingsHash = Reg.GetMd5Hash(REGISTRYROOT);
                 //If registry key has changed, refresh the banners to apply new settings
-                if (currentSettingsHash != this.settingsHash) 
+                if (currentSettingsHash != this.settingsHash)
                 {
                     // Queue method to run on UI thread
                     Dispatcher.Invoke(() =>
@@ -115,7 +125,7 @@ namespace DesktopBanner
         {
             // Get embedded resource stream
             Assembly assembly = Assembly.GetExecutingAssembly();
-            Stream resourceStream = assembly.GetManifestResourceStream("DesktopBanner.Embedded.BannerCleanupHelper.exe");
+            Stream? resourceStream = assembly.GetManifestResourceStream("DesktopBanner.Embedded.BannerCleanupHelper.exe");
            
             // Extract to temp file
             string tempPath = Path.GetTempPath();

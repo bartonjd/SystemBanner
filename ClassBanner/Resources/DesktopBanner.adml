@@ -9,6 +9,19 @@
 <stringTable>
 
   <string id="DesktopBanner">Desktop Banner</string>
+  <string id="EnableDesktopBanner">Enable Desktop Banner</string>
+  <string id="EnableDesktopBanner_Explain">
+  This policy controls whether the Desktop Banner application runs on this computer.
+
+  If you enable this policy, the Desktop Banner will be allowed to run (subject to additional configuration).
+
+  If you disable this policy, the Desktop Banner will not run even if it is configured to start automatically.
+
+  If you do not configure this policy, the Desktop Banner will not run.
+
+  Note: After changing this policy, users may need to log off and log back on, or the Desktop Banner application may need to be restarted for the change to take effect.
+  </string>
+
   <string id="DesktopBanner_Configuration">Desktop Banner Configuration</string>
   
   <string id="DesktopBanner_Explain">
@@ -36,6 +49,17 @@ Banner Position: Configures whether the banner is displayed on the top only, or 
 Opacity: Integer value (0-100) controlling banner transparency, where 100 is fully opaque and 0 is invisible
 
 Background Color: A color name (e.g. Green, Red, Blue) or hexadecimal color code (e.g. #008000 for green, #FF0000 for red)
+
+  DoD Classification Banner Color Recommendations:
+  - UNCLASSIFIED: Green (#008000)
+  - CONFIDENTIAL: Blue (#0000FF)
+  - SECRET: Red (#FF0000)
+  - TOP SECRET: Orange (#FFA500)
+
+  ACCESSIBILITY NOTE - Text Contrast:
+  For optimal readability and compliance with accessibility guidelines, banners with Green, Blue, Red, and Purple backgrounds should use White text. Banners with Yellow or Orange backgrounds should use Black text to ensure sufficient contrast and readability for all users.
+
+  Note: The banner application uses White text by default. When using Yellow or Orange backgrounds, ensure your configuration accounts for text visibility.
 
 Display Mode:
 
@@ -78,6 +102,10 @@ Display Mode:
 
     <textBox refId="BAK_BackgroundColor">
       <label>Background Color (e.g. #008000 or Green)</label>
+    </textBox>
+
+    <textBox refId="TXT_TextColor">
+      <label>Text Color (e.g. #FFFFFF or White)</label>
     </textBox>
 
     <dropdownList refId="DSP_DisplayMode" noSort="true" defaultItem="0">Display Mode</dropdownList>

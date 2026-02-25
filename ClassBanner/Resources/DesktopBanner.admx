@@ -14,7 +14,18 @@
   </categories>
   
   <policies>
-  
+
+    <policy name="EnableDesktopBanner" displayName="$(string.EnableDesktopBanner)" explainText="$(string.EnableDesktopBanner_Explain)" key="SOFTWARE\DesktopBanner" valueName="Enabled" class="Machine">
+      <parentCategory ref="DesktopBanner" />
+      <supportedOn ref="windows:SUPPORTED_Windows_10_0"/>
+      <enabledValue>
+        <decimal value="1"/>
+      </enabledValue>
+      <disabledValue>
+        <decimal value="0"/>
+      </disabledValue>
+    </policy>
+
     <policy name="DesktopBanner_Configuration" displayName="$(string.DesktopBanner_Configuration)" explainText="$(string.DesktopBanner_Explain)" key="SOFTWARE\DesktopBanner" class="Machine" presentation="$(presentation.DesktopBanner_Configuration)" >
 
       <parentCategory ref="DesktopBanner" />
@@ -44,6 +55,8 @@
         <decimal id="OPA_BannerOpacity" valueName="Opacity" required="true" minValue="0" maxValue="100" />
 
         <text id="BAK_BackgroundColor" valueName="BackgroundColor" required="true" />
+
+        <text id="TXT_TextColor" valueName="TextColor" required="true" />
 
         <enum id="DSP_DisplayMode" valueName="DisplayMode">
 

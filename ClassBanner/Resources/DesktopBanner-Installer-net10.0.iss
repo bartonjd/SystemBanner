@@ -37,7 +37,7 @@ DisableWelcomePage=no
 UninstallDisplayIcon={app}\{#MyAppExeName}
 VersionInfoVersion={#MyAppVersion}
 VersionInfoCompany={#MyAppPublisher}
-VersionInfoDescription=Security Banner Tool for Windows Desktop
+VersionInfoDescription=Desktop Security Banner Tool for Windows Desktop
 VersionInfoProductName={#MyAppName}
 
 [Languages]
@@ -45,7 +45,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
 Name: "autostart"; Description: "Start Desktop Banner automatically with Windows"; GroupDescription: "Startup Options:"; Flags: checkedonce
-Name: "installpolicy"; Description: "Install Group Policy ADMX templates (for centralized or local management)"; GroupDescription: "Additional Options:"; Flags: checkedonce
+Name: "installpolicy"; Description: "Install Group Policy ADMX templates (for centralized or local management)"; GroupDescription: "Additional Options:"
 
 [Files]
 ; Main application files
@@ -68,14 +68,12 @@ Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 [Registry]
 ; Default registry values for DesktopBanner (HKLM\SOFTWARE\DesktopBanner)
 Root: HKLM; Subkey: "SOFTWARE\DesktopBanner"; Flags: uninsdeletekeyifempty
-Root: HKLM; Subkey: "SOFTWARE\DesktopBanner"; ValueType: dword; ValueName: "Enabled"; ValueData: "1"; Flags: createvalueifdoesntexist; Tasks: autostart
 Root: HKLM; Subkey: "SOFTWARE\DesktopBanner"; ValueType: string; ValueName: "LeftDisplayText"; ValueData: "@HOST"; Flags: createvalueifdoesntexist
 Root: HKLM; Subkey: "SOFTWARE\DesktopBanner"; ValueType: string; ValueName: "CenterDisplayText"; ValueData: "UNCLASSIFIED"; Flags: createvalueifdoesntexist
 Root: HKLM; Subkey: "SOFTWARE\DesktopBanner"; ValueType: string; ValueName: "RightDisplayText"; ValueData: "@USER"; Flags: createvalueifdoesntexist
 Root: HKLM; Subkey: "SOFTWARE\DesktopBanner"; ValueType: dword; ValueName: "ShowOnBottom"; ValueData: "0"; Flags: createvalueifdoesntexist
 Root: HKLM; Subkey: "SOFTWARE\DesktopBanner"; ValueType: dword; ValueName: "Opacity"; ValueData: "100"; Flags: createvalueifdoesntexist
 Root: HKLM; Subkey: "SOFTWARE\DesktopBanner"; ValueType: string; ValueName: "BackgroundColor"; ValueData: "#008000"; Flags: createvalueifdoesntexist
-Root: HKLM; Subkey: "SOFTWARE\DesktopBanner"; ValueType: string; ValueName: "TextColor"; ValueData: "#FFFFFF"; Flags: createvalueifdoesntexist
 Root: HKLM; Subkey: "SOFTWARE\DesktopBanner"; ValueType: dword; ValueName: "DisplayMode"; ValueData: "{code:GetDisplayModeValue}"; Flags: createvalueifdoesntexist
 
 ; Autostart registry entry

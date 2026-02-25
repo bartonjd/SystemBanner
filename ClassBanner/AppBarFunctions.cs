@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -165,22 +165,33 @@ namespace DesktopBanner
 
         private static void ABSetPos(RegisterInfo info, Window? appbarWindow, FrameworkElement? childElement)
         {
+            if (appbarWindow == null)
+            {
+                return;
+            }
+
             var edge = info.Edge;
             var barData = new Interop.APPBARDATA();
             barData.cbSize = Marshal.SizeOf(barData);
             barData.hWnd = new WindowInteropHelper(appbarWindow).Handle;
             barData.uEdge = (int)edge;
 
+            var presentationSource = PresentationSource.FromVisual(appbarWindow);
+            if (presentationSource?.CompositionTarget == null)
+            {
+                return;
+            }
+
             // Transforms a coordinate from WPF space to Screen space
-            var toPixel = PresentationSource.FromVisual(appbarWindow).CompositionTarget.TransformToDevice;
+            var toPixel = presentationSource.CompositionTarget.TransformToDevice;
             // Transforms a coordinate from Screen space to WPF space
-            var toWpfUnit = PresentationSource.FromVisual(appbarWindow).CompositionTarget.TransformFromDevice;
+            var toWpfUnit = presentationSource.CompositionTarget.TransformFromDevice;
 
             // Transform window size from wpf units (1/96 ") to real pixels, for win32 usage
             var sizeInPixels = (childElement != null ?
                 toPixel.Transform(new Vector(childElement.ActualWidth, childElement.ActualHeight)) :
                 toPixel.Transform(new Vector(appbarWindow.ActualWidth, appbarWindow.ActualHeight)));
-            // Even if the documentation says SystemParameters.PrimaryScreen{Width, Height} return values in 
+            // Even if the documentation says SystemParameters.PrimaryScreen{Width, Height} return values in
             // "pixels", they return wpf units instead.
             var actualWorkArea = GetActualWorkArea(info);
             var screenSizeInPixels =

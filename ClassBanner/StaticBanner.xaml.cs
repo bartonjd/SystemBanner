@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media.Animation;
@@ -19,7 +19,6 @@ namespace DesktopBanner
     public partial class StaticBanner : Banner
     {
 
-        new private DisplayMode DisplayMode =  DesktopBanner.DisplayMode.Static;
         //String used to identify AppBars registered in Windows by this application, this will alos be needed in order to remove the registration
         private const string APPBAR_UNIQUE_IDENTIFIER = "DesktopBanner_AppBarMessage_ECDFB5206FC2";
         private bool IsAppBarRegistered;
@@ -243,6 +242,11 @@ namespace DesktopBanner
             }
             if (!IsAppBarPositioned)
             {
+                if (Display == null)
+                {
+                    return;
+                }
+
                 var abd = GetAppBarData();
                 abd.rc = (RECT)Display.Bounds;
 

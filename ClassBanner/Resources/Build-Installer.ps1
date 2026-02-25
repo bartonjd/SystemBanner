@@ -3,7 +3,8 @@
 
 param(
     [string]$Configuration = "Release",
-    [string]$InnoSetupPath = "C:\Program Files\Inno Setup 6\ISCC.exe"
+    [string]$DotNetVersion = "net6.0",
+    [string]$InnoSetupPath = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
 )
 
 $ErrorActionPreference = "Stop"
@@ -57,7 +58,7 @@ Write-Host ""
 
 # Step 3: Verify build output
 Write-Host "[3/4] Verifying build output..." -ForegroundColor Yellow
-$ExePath = Join-Path $ProjectRoot "bin\$Configuration\net6.0-windows\win-x64\DesktopBanner.exe"
+$ExePath = Join-Path $ProjectRoot "bin\$Configuration\$DotNetVersion-windows\win-x64\DesktopBanner.exe"
 if (-not (Test-Path $ExePath)) {
     Write-Host "      ERROR: Build output not found at: $ExePath" -ForegroundColor Red
     exit 1

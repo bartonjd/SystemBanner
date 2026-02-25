@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows;
 using System.Collections.Generic;
 using WpfScreenHelper;
@@ -120,8 +120,10 @@ namespace DesktopBanner
             banner.Display = s;
 
             //Add the banner to the manager
-            //TODO: Get rid of the nullability warning
-            Add(banner.DisplayIdentifier, banner);
+            if (banner.DisplayIdentifier is not null)
+            {
+                Add(banner.DisplayIdentifier, banner);
+            }
             banner.Show();
             banner.Topmost = true;
         }
