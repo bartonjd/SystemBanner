@@ -67,7 +67,7 @@ Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 
 [Registry]
 ; Default registry values for DesktopBanner (HKLM\SOFTWARE\DesktopBanner)
-Root: HKLM; Subkey: "SOFTWARE\DesktopBanner"; Flags: uninsdeletekeyifempty
+Root: HKLM; Subkey: "SOFTWARE\DesktopBanner"; Flags: uninsdeletekey
 Root: HKLM; Subkey: "SOFTWARE\DesktopBanner"; ValueType: dword; ValueName: "Enabled"; ValueData: "1"; Flags: createvalueifdoesntexist; Tasks: autostart
 Root: HKLM; Subkey: "SOFTWARE\DesktopBanner"; ValueType: string; ValueName: "LeftDisplayText"; ValueData: "@HOST"; Flags: createvalueifdoesntexist
 Root: HKLM; Subkey: "SOFTWARE\DesktopBanner"; ValueType: string; ValueName: "CenterDisplayText"; ValueData: "UNCLASSIFIED"; Flags: createvalueifdoesntexist
@@ -83,6 +83,10 @@ Root: HKLM; Subkey: "SOFTWARE\Microsoft\Windows\CurrentVersion\Run"; ValueType: 
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+
+[UninstallRun]
+Filename: "taskkill.exe"; Parameters: "/F /IM DesktopBanner.exe"; Flags: runhidden; RunOnceId: "StopDesktopBanner"
+Filename: "taskkill.exe"; Parameters: "/F /IM BannerCleanupHelper.exe"; Flags: runhidden; RunOnceId: "StopBannerCleanupHelper"
 
 [Code]
 var
